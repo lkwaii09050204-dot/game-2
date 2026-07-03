@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+
+
+
+<html lang="en">
+
+
+
+<head>
+
+
+
+    <meta charset="UTF-8">
+
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+    <title>Hospital Mystery: Chapter 2 - Seeking the Truth</title>
+
+
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+
+
+    <style>
+
+
+
+        .aspect-ratio-box { aspect-ratio: 16 / 9; }
+
+
+
+        @keyframes pulse-hover {
+
+
+
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5)); }
+
+
+
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)); }
+
+
+
+            100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5)); }
+
+
+
+        }
+
+
+
+        .interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
+
+
+
+        .interactive-item:hover { animation: pulse-hover 1.5s infinite ease-in-out; z-index: 10; }
+
+
+
+        .hidden-scene { opacity: 0; pointer-events: none; position: absolute; inset: 0; }
+
+
+
+        .active-scene { opacity: 1; pointer-events: auto; position: absolute; inset: 0; }
+
+
+
+        .fade-in { transition: opacity 1s ease-in-out; }
+
+/* --- 闪烁动画 --- */
+
+        @keyframes blink-border {
+
+            0%, 100% { border-color: white; box-shadow: 0 0 10px white; background-color: rgba(255, 255, 255, 0.2); }
+
+            50% { border-color: transparent; }
+
+        }
+
+        .blinking-input {
+
+            position: absolute;
+
+            border: 3px solid red;
+
+            animation: blink-border 1.5s infinite;
+
+            background: transparent;
+
+            outline: none;
+
+            z-index: 60;
+
+        }
+
+    </style>
+
+
+
+</head>
+
+
+
+<body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 select-none">
+
+
+
+
+
+
+
+    <!-- 主遊戲容器 -->
+
+
+
+    <div id="game-container" class="relative w-full max-w-5xl aspect-ratio-box bg-black shadow-2xl rounded-xl overflow-hidden border-4 border-gray-700">
+
+
+
+        
+
+
+
+        <!-- 場景 0：開始畫面 -->
+
+
+
+        <div id="scene-start" class="active-scene bg-gray-800 flex flex-col items-center justify-center text-white z-50">
+
+
+
+            <h1 class="text-5xl font-bold mb-4 tracking-widest text-red-400">The Price of Lies</h1>
+
+
+
+            <h2 class="text-2xl mb-12 text-gray-300">Chapter 2: Accident and Truth</h2>
+
+
+
+            <button onclick="startGame()" class="px-8 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full transition transform hover:scale-105 shadow-lg">Start Game</button>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- 場景 1：警察來電 -->
+
+
+
+        <div id="scene-phone" class="hidden-scene bg-gray-900 flex flex-col items-center justify-center z-40 relative">
+
+
+
+            <div class="z-10 text-center">
+
+
+
+                <div class="text-6xl mb-6">📱</div>
+
+
+
+                <div id="phone-dialogue" class="text-2xl text-white font-semibold mb-8 max-w-2xl px-6 h-24"></div>
+
+
+
+                <button id="btn-hospital" onclick="goToHospital()" class="hidden px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg">Rush to Hospital Immediately</button>
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- 場景 2：醫院登記處 -->
+
+
+
+        <div id="scene-hospital" class="hidden-scene z-30 bg-black">
+
+
+
+            <img src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
+
+
+
+            
+
+
+
+            <img src="https://assets.codepen.io/17688442/Visitor+log+book-png.png" 
+
+
+
+                 id="item-logbook"
+
+
+
+                 class="interactive-item" 
+
+
+
+                 style="left: 46%; top: 73%; width: 19%; transform-origin: center center;"
+
+
+
+                 alt="Visitor Log Book"
+
+
+
+                 title="Click to examine"
+
+
+
+                 onclick="openLogBook()"
+
+
+
+                 onerror="this.src='https://placehold.co/300x200/34495e/ecf0f1?text=Log+Book'">
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- 彈出視窗：顯示登記簿圖片 -->
+
+
+
+        <div id="modal-logbook" class="hidden absolute inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+
+
+
+            <div class="w-full max-w-4xl h-5/6 relative">
+
+
+
+                <img src="https://assets.codepen.io/17688442/visitor+book+%E5%86%85%E9%A0%81%E8%A8%AD%E8%A8%88.jpeg" alt="Visitor Log Details" class="w-full h-full object-contain border-4 border-white">
+
+              
+
+<input type="text" id="input-h42" class="blinking-input" style="top: 75%; left: 34%; width: 7%; height: 9%;">
+
+                
+
+<input type="text" id="input-ruth" class="blinking-input" style="top: 75%; left: 62%; width: 8%; height: 9%;">
+
+                <button onclick="closeLogBook()" class="absolute -top-12 right-0 text-white font-bold text-4xl hover:text-red-400">&times;</button>
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- 護士說話區域 -->
+
+
+
+    <div id="nurse-speech" class="hidden fade-in mt-6 p-6 bg-gray-800 w-full max-w-5xl rounded-xl border-2 border-gray-500 shadow-lg flex items-start space-x-4">
+
+
+
+        <div class="w-14 h-14 rounded-full border-2 border-gray-400 bg-gray-700 flex-shrink-0 flex items-center justify-center text-2xl">👩‍⚕️</div>
+
+
+
+        <div>
+
+
+
+            <p class="text-blue-300 font-bold text-lg mb-1">Nurse Sarah :</p>
+
+
+
+            <p id="nurse-dialogue-text" class="text-xl text-gray-100 font-semibold min-h-[30px]"></p>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <script>
+
+
+
+        function switchScene(hideId, showId) {
+
+
+
+            document.getElementById(hideId).classList.replace('active-scene', 'hidden-scene');
+
+
+
+            document.getElementById(showId).classList.replace('hidden-scene', 'active-scene');
+
+
+
+        }
+
+
+
+        function startGame() { switchScene('scene-start', 'scene-phone'); playPhoneEvent(); }
+
+
+
+        
+
+
+
+        function playPhoneEvent() {
+
+
+
+            const dialogueEl = document.getElementById('phone-dialogue');
+
+
+
+            const texts = ["Hello, is this Ruth Winter? Mother of Evelyn Anderson?", "This is the Police. Your daughter had a severe car accident.", "Please come to the hospital immediately!"];
+
+
+
+            let step = 0;
+
+
+
+            function next() {
+
+
+
+                if(step < texts.length) { dialogueEl.innerHTML = texts[step++]; setTimeout(next, 2500); }
+
+
+
+                else { document.getElementById('btn-hospital').classList.remove('hidden'); }
+
+
+
+            }
+
+
+
+            next();
+
+
+
+        }
+
+
+
+
+
+
+
+        function goToHospital() { 
+
+
+
+            switchScene('scene-phone', 'scene-hospital'); 
+
+
+
+            const speechBox = document.getElementById('nurse-speech');
+
+
+
+            speechBox.classList.remove('hidden');
+
+
+
+            typeWriterStart();
+
+
+
+        }
+
+
+
+
+
+
+
+        const nurseText = "All visitors are required to sign in. Could you fill this out, please?";
+
+
+
+        let typeIndex = 0;
+
+
+
+        function typeWriterStart() {
+
+
+
+            document.getElementById('nurse-dialogue-text').innerHTML = "";
+
+
+
+            typeIndex = 0;
+
+
+
+            typeWriter();
+
+
+
+        }
+
+
+
+        function typeWriter() {
+
+
+
+            if (typeIndex < nurseText.length) {
+
+
+
+                document.getElementById('nurse-dialogue-text').innerHTML += nurseText.charAt(typeIndex);
+
+
+
+                typeIndex++;
+
+
+
+                setTimeout(typeWriter, 40);
+
+
+
+            }
+
+
+
+        }
+
+
+
+
+
+
+
+        function openLogBook() { document.getElementById('modal-logbook').classList.remove('hidden'); }
+
+
+
+        function closeLogBook() { document.getElementById('modal-logbook').classList.add('hidden'); }
+
+
+
+    </script>
+
+
+
+</body>
+
+
+
+</html> 
