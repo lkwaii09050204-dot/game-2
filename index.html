@@ -35,13 +35,13 @@
             text-align: center;
         }
       /* 箭頭發光動畫 */
-@keyframes glow-pulse {
-    0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6)); opacity: 0.8; }
-    50% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1)); opacity: 1; }
-}
-.arrow-glow {
-    animation: glow-pulse 2s infinite ease-in-out;
-}
+        @keyframes glow-pulse {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6)); opacity: 0.8; }
+            50% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1)); opacity: 1; }
+        }
+        .arrow-glow {
+            animation: glow-pulse 2s infinite ease-in-out;
+        }
       
     </style>
 </head>
@@ -68,7 +68,8 @@
 
         <!-- 場景 2：醫院登記處 -->
         <div id="scene-hospital" class="hidden-scene z-30 bg-black">
-            <img src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
+            <!-- 加入 ID 以便 JavaScript 切換圖片來產生眨眼效果 -->
+            <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
             
             <img src="https://assets.codepen.io/17688442/Visitor+log+book-png.png" 
                  id="item-logbook"
@@ -103,30 +104,30 @@
 
         <!-- 場景 3：病房內 -->
         <div id="scene-ward" class="hidden-scene z-30 bg-black">
-    <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/1024x576/2c3e50/ecf0f1?text=Scene+3:+Ward'">
+            <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/1024x576/2c3e50/ecf0f1?text=Scene+3:+Ward'">
 
-    <img src="https://assets.codepen.io/17688442/fruit.png" 
-         id="item-fruit"
-         class="interactive-item"
-         style="left: 68.25%; top: 42.75%; width: 14.5%; transform-origin: center center;"
-         alt="Fruit Basket"
-         title="Click to examine"
-         onclick="alert('這籃水果看起來很新鮮，可能是給 Evelyn 的。')">
+            <img src="https://assets.codepen.io/17688442/fruit.png" 
+                 id="item-fruit"
+                 class="interactive-item"
+                 style="left: 68.25%; top: 42.75%; width: 14.5%; transform-origin: center center;"
+                 alt="Fruit Basket"
+                 title="Click to examine"
+                 onclick="alert('這籃水果看起來很新鮮，可能是給 Evelyn 的。')">
 
-    <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
-            onclick="switchScene('scene-ward', 'scene-hospital')">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-        </svg>
-    </button>
-    
-    <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
-            onclick="alert('這裏是盡頭')">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
-        </svg>
-    </button>
-</div>
+            <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+                    onclick="backToHospital()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            
+            <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+                    onclick="alert('這裏是盡頭')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
         
         <!-- 轉場專用的全畫面黑幕 -->
         <div id="fade-overlay" class="absolute inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
@@ -167,6 +168,7 @@
             speechBox.classList.remove('hidden');
             nurseText = "All visitors are required to sign in. Could you fill this out, please?";
             typeWriterStart();
+            startBlinking(); // 進入醫院場景時，開始護士眨眼動畫
         }
 
         let nurseText = "";
@@ -188,8 +190,41 @@
             }
         }
 
+        /* 護士眨眼動畫系統 */
+        const imgOpen = "https://assets.codepen.io/17688442/scene+1-Registration+Desk.png";
+        const imgHalf = "https://assets.codepen.io/17688442/scene+1b-Registration+Desk.png";
+        const imgClosed = "https://assets.codepen.io/17688442/scene+1c-Registration+Desk.png";
+        
+        // 遊戲載入時預先載入這三張圖片，避免切換時出現白色閃爍
+        [imgOpen, imgHalf, imgClosed].forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+
+        let blinkTimer;
+        function startBlinking() {
+            if (blinkTimer) clearInterval(blinkTimer);
+            
+            // 每 3.5 秒觸發一次自然的眨眼動作
+            blinkTimer = setInterval(() => {
+                const bg = document.getElementById('hospital-bg');
+                if (!bg) return;
+                
+                // 順序：半合眼 -> 合眼 -> 半合眼 -> 開眼 (時間差控制幀率)
+                setTimeout(() => bg.src = imgHalf, 60);
+                setTimeout(() => bg.src = imgClosed, 120);
+                setTimeout(() => bg.src = imgHalf, 180);
+                setTimeout(() => bg.src = imgOpen, 240);
+            }, 3500); 
+        }
+
+        function stopBlinking() {
+            if (blinkTimer) clearInterval(blinkTimer);
+        }
+
         /* 轉場動畫邏輯 */
         function transitionToWard() {
+            stopBlinking(); // 離開醫院場景時，停止眨眼計算
             const fadeOverlay = document.getElementById('fade-overlay');
             
             // 1. 畫面漸變為全黑
@@ -202,6 +237,24 @@
                 document.getElementById('nurse-speech').classList.add('hidden'); // 隱藏護士對話框
                 
                 // 3. 畫面漸漸變回明亮
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
+        }
+
+        /* 新增：從病房返回醫院大廳的邏輯，帶有淡入淡出效果 */
+        function backToHospital() {
+            const fadeOverlay = document.getElementById('fade-overlay');
+            
+            // 畫面漸黑
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                switchScene('scene-ward', 'scene-hospital');
+                startBlinking(); // 重新啟動護士的眨眼動畫
+                
+                // 畫面漸亮
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
