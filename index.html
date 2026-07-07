@@ -18,7 +18,7 @@
         .active-scene { opacity: 1; pointer-events: auto; position: absolute; inset: 0; }
         .fade-in { transition: opacity 1s ease-in-out; }
 
-        /* --- 闪烁动画 --- */
+        /* 閃爍動畫 */
         @keyframes blink-border {
             0%, 100% { border-color: white; box-shadow: 0 0 10px white; background-color: rgba(255, 255, 255, 0.2); }
             50% { border-color: transparent; }
@@ -34,6 +34,15 @@
             font-size: 1.2rem;
             text-align: center;
         }
+      /* 箭頭發光動畫 */
+@keyframes glow-pulse {
+    0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6)); opacity: 0.8; }
+    50% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1)); opacity: 1; }
+}
+.arrow-glow {
+    animation: glow-pulse 2s infinite ease-in-out;
+}
+      
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 select-none">
@@ -73,14 +82,17 @@
 
         <!-- 彈出視窗：顯示登記簿圖片 -->
         <div id="modal-logbook" class="hidden absolute inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-            <div class="w-full max-w-4xl h-5/6 relative">
-                <img src="https://assets.codepen.io/17688442/visitor+book+%E5%86%85%E9%A0%81%E8%A8%AD%E8%A8%88.jpeg" alt="Visitor Log Details" class="w-full h-full object-contain border-4 border-white">
+            <div class="w-full max-w-4xl h-5/6 relative flex justify-center">
+                <img src="https://assets.codepen.io/17688442/visitor+book+%E5%86%85%E9%A0%81%E8%A8%AD%E8%A8%88.jpeg" alt="Visitor Log Details" class="h-full w-auto object-contain border-4 border-white relative">
                 
-                <input type="text" id="input-h42" class="blinking-input" style="top: 75%; left: 34%; width: 7%; height: 9%;">
+                <!-- 覆蓋在圖片上的輸入框與按鈕，根據圖片比例進行絕對定位 -->
+                <div class="absolute inset-0 pointer-events-none" style="max-width: 100%; height: 100%;">
+                    <!-- 這些百分比是基於包含圖片的容器 -->
+                    <input type="text" id="input-h42" class="blinking-input pointer-events-auto" style="top: 76.5%; left: 34%; width: 6%; height: 7%;">
+                    <input type="text" id="input-ruth" class="blinking-input pointer-events-auto" style="top: 76.5%; left: 60%; width: 7.5%; height: 7%;">
+                </div>
                 
-                <input type="text" id="input-ruth" class="blinking-input" style="top: 75%; left: 62%; width: 8%; height: 9%;">
-                
-                <!-- 新增：提交給護士的按鈕 -->
+                <!-- 提交給護士的按鈕 -->
                 <button onclick="checkAnswers()" class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg text-xl border-2 border-white">
                     Hand in to nurse
                 </button>
@@ -88,6 +100,29 @@
                 <button onclick="closeLogBook()" class="absolute -top-12 right-0 text-white font-bold text-4xl hover:text-red-400">&times;</button>
             </div>
         </div>
+
+        <!-- 場景 3：病房內 -->
+        <div id="scene-ward" class="hidden-scene z-30 bg-black">
+    <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/1024x576/2c3e50/ecf0f1?text=Scene+3:+Ward'">
+
+    <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+            onclick="switchScene('scene-ward', 'scene-hospital')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+        </svg>
+    </button>
+    
+    <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+            onclick="alert('這裏是盡頭')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+        </svg>
+    </button>
+</div>
+        
+        <!-- 轉場專用的全畫面黑幕 -->
+        <div id="fade-overlay" class="absolute inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
+
     </div>
 
     <!-- 護士說話區域 -->
@@ -126,7 +161,7 @@
             typeWriterStart();
         }
 
-        let nurseText = "All visitors are required to sign in. Could you fill this out, please?";
+        let nurseText = "";
         let typeIndex = 0;
         let typeTimer;
 
@@ -143,6 +178,25 @@
                 typeIndex++;
                 typeTimer = setTimeout(typeWriter, 40);
             }
+        }
+
+        /* 轉場動畫邏輯 */
+        function transitionToWard() {
+            const fadeOverlay = document.getElementById('fade-overlay');
+            
+            // 1. 畫面漸變為全黑
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
+            
+            // 2. 等待 1 秒 (黑幕完全遮蔽) 後，切換場景
+            setTimeout(() => {
+                switchScene('scene-hospital', 'scene-ward');
+                document.getElementById('nurse-speech').classList.add('hidden'); // 隱藏護士對話框
+                
+                // 3. 畫面漸漸變回明亮
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
         }
 
         // 驗證答案邏輯
@@ -162,6 +216,9 @@
                 const logbookItem = document.getElementById('item-logbook');
                 logbookItem.classList.remove('interactive-item'); // 移除 hover 動畫和可點擊游標
                 logbookItem.style.pointerEvents = 'none'; // 徹底停用點擊事件
+                
+                // 觸發轉場動畫 (等待 3 秒讓玩家看完護士的台詞)
+                setTimeout(transitionToWard, 3000);
                 
             } else {
                 nurseText = "Please make sure the information is correct.";
