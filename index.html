@@ -221,6 +221,7 @@
             nurseText = "All visitors are required to sign in. Could you fill this out, please?";
             typeWriterStart();
             startBlinking();
+            resetLogbook(); // 確保登記簿可以被點選
         }
 
         /* 修復遺失的打字機與動畫變數 */
@@ -240,6 +241,17 @@
                 document.getElementById('nurse-dialogue-text').innerHTML += nurseText.charAt(typeIndex);
                 typeIndex++;
                 typeTimer = setTimeout(typeWriter, 40);
+            }
+        }
+
+        /* 確保任何時候進入護士頁面，登記簿都處於可點擊的狀態 */
+        function resetLogbook() {
+            const logbookItem = document.getElementById('item-logbook');
+            if (logbookItem) {
+                if (!logbookItem.classList.contains('interactive-item')) {
+                    logbookItem.classList.add('interactive-item');
+                }
+                logbookItem.style.pointerEvents = 'auto'; // 啟用點擊事件
             }
         }
 
@@ -313,6 +325,7 @@
             setTimeout(() => {
                 switchScene('scene-ward', 'scene-hospital');
                 startBlinking(); // 重新啟動護士的眨眼動畫
+                resetLogbook(); // 確保重新回到護士大廳時，登記簿是可以被點擊的
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
@@ -326,6 +339,7 @@
                 // 切換回醫院大廳
                 switchScene('scene-doctor', 'scene-hospital');
                 startBlinking(); // 重新啟動護士的眨眼動畫
+                resetLogbook(); // 確保點擊門把退回大廳時，登記簿維持可以被點選狀態
                 
                 // 解除隱藏，顯示可以返回醫生房間的箭頭
                 document.getElementById('btn-return-doctor').classList.remove('hidden');
@@ -361,10 +375,10 @@
                 typeWriterStart();
                 closeLogBook(); // 答案正確，關閉登記簿
                 
-                // 停止桌上登記簿的閃爍與點擊效果
+                // 停止桌上登記簿的閃爍與點擊效果（進入大廳後會被 resetLogbook 重新啟用，符合您的全時點擊要求）
                 const logbookItem = document.getElementById('item-logbook');
                 logbookItem.classList.remove('interactive-item'); // 移除 hover 動畫和可點擊游標
-                logbookItem.style.pointerEvents = 'none'; // 徹底停用點擊事件
+                logbookItem.style.pointerEvents = 'none'; // 暫時停用
                 
                 // 觸發轉場動畫 (等待 3 秒讓玩家看完護士的台詞)
                 setTimeout(transitionToWard, 3000);
