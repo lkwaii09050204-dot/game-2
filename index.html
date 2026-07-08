@@ -14,6 +14,16 @@
         }
         .interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
         .interactive-item:hover { animation: pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
+
+        /* 新增：較輕微的閃爍動畫 (給較大的物件使用，例如水果籃) */
+        @keyframes mild-pulse-hover {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
+            50% { transform: scale(1.03); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
+        }
+        .mild-interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
+        .mild-interactive-item:hover { animation: mild-pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
+        
         .hidden-scene { opacity: 0; pointer-events: none; position: absolute; inset: 0; }
         .active-scene { opacity: 1; pointer-events: auto; position: absolute; inset: 0; }
         .fade-in { transition: opacity 1s ease-in-out; }
@@ -79,6 +89,14 @@
                  title="Click to examine"
                  onclick="openLogBook()"
                  onerror="this.src='https://placehold.co/300x200/34495e/ecf0f1?text=Log+Book'">
+
+            <!-- 新增：從醫生房間返回大廳後才會顯示的左邊箭頭，點擊返回醫生房間 -->
+            <button id="btn-return-doctor" class="hidden absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+                    onclick="goToDoctorFromHospital()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
         </div>
 
         <!-- 彈出視窗：顯示登記簿圖片 -->
@@ -108,7 +126,7 @@
 
             <img src="https://assets.codepen.io/17688442/fruit.png" 
                  id="item-fruit"
-                 class="interactive-item"
+                 class="mild-interactive-item"
                  style="left: 68.25%; top: 42.75%; width: 14.5%; transform-origin: center center;"
                  alt="Fruit Basket"
                  title="Click to examine"
@@ -299,6 +317,23 @@
                 // 切換回醫院大廳
                 switchScene('scene-doctor', 'scene-hospital');
                 startBlinking(); // 重新啟動護士的眨眼動畫
+                
+                // 解除隱藏，顯示可以返回醫生房間的箭頭
+                document.getElementById('btn-return-doctor').classList.remove('hidden');
+                
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
+        }
+
+        /* 新增：從醫院大廳前往醫生場景的邏輯 */
+        function goToDoctorFromHospital() {
+            stopBlinking(); // 離開大廳時停止護士眨眼
+            const fadeOverlay = document.getElementById('fade-overlay');
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
+            setTimeout(() => {
+                switchScene('scene-hospital', 'scene-doctor');
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
