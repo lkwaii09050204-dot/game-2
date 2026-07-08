@@ -111,8 +111,8 @@
                     <input type="text" id="input-ruth" class="blinking-input pointer-events-auto" style="top: 76.05%; left: 61.75%; width: 8.3%; height: 7%;">
                 </div>
                 
-                <!-- 提交給護士的按鈕 -->
-                <button onclick="checkAnswers()" class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg text-xl border-2 border-white">
+                <!-- 提交給護士的按鈕 (加上了 id="btn-submit-logbook" 以便隱藏) -->
+                <button id="btn-submit-logbook" onclick="checkAnswers()" class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg text-xl border-2 border-white">
                     Hand in to nurse
                 </button>
 
@@ -228,6 +228,7 @@
         let nurseText = "";
         let typeIndex = 0;
         let typeTimer;
+        let isLogbookLocked = false; // 新增：追蹤登記簿是否已經完成
 
         function typeWriterStart() {
             clearTimeout(typeTimer);
@@ -371,6 +372,7 @@
             const isRelCorrect = (['mother', 'mum', 'mom'].includes(relInput));
 
             if (isWardCorrect && isRelCorrect) {
+                isLogbookLocked = true; // 標記謎題已解開
                 nurseText = "Thank you. You may come in.";
                 typeWriterStart();
                 closeLogBook(); // 答案正確，關閉登記簿
@@ -389,7 +391,28 @@
             }
         }
 
-        function openLogBook() { document.getElementById('modal-logbook').classList.remove('hidden'); }
+        function openLogBook() { 
+            document.getElementById('modal-logbook').classList.remove('hidden'); 
+            
+            // 如果謎題已經解開，則鎖定輸入並隱藏按鈕
+            if (isLogbookLocked) {
+                const inputH42 = document.getElementById('input-h42');
+                const inputRuth = document.getElementById('input-ruth');
+                
+                // 設為唯讀，不允許打字
+                inputH42.readOnly = true;
+                inputRuth.readOnly = true;
+                
+                // 移除紅框閃爍動畫，看起來像固定的文字
+                inputH42.style.animation = 'none';
+                inputH42.style.border = 'none';
+                inputRuth.style.animation = 'none';
+                inputRuth.style.border = 'none';
+                
+                // 隱藏提交按鈕
+                document.getElementById('btn-submit-logbook').classList.add('hidden');
+            }
+        }
         function closeLogBook() { document.getElementById('modal-logbook').classList.add('hidden'); }
     </script>
 </body>
