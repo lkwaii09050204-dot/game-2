@@ -9,11 +9,11 @@
         .aspect-ratio-box { aspect-ratio: 16 / 9; }
         @keyframes pulse-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5)); }
-            50% { transform: scale(1.1); filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)); }
             100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5)); }
         }
         .interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
-        .interactive-item:hover { animation: pulse-hover 1.5s infinite ease-in-out; z-index: 10; }
+        .interactive-item:hover { animation: pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
         .hidden-scene { opacity: 0; pointer-events: none; position: absolute; inset: 0; }
         .active-scene { opacity: 1; pointer-events: auto; position: absolute; inset: 0; }
         .fade-in { transition: opacity 1s ease-in-out; }
@@ -114,17 +114,41 @@
                  title="Click to examine"
                  onclick="alert('這籃水果看起來很新鮮，可能是給 Evelyn 的。')">
 
+            <!-- 左邊箭頭：原本返回醫院大廳，現在暫時改為提示 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
-                    onclick="backToHospital()">
+                    onclick="alert('此處即將開放新場景...')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
             
+            <!-- 右邊箭頭：前往醫生畫面 -->
             <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
-                    onclick="alert('這裏是盡頭')">
+                    onclick="goToDoctor()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- 場景 4：醫生房間 -->
+        <div id="scene-doctor" class="hidden-scene z-30 bg-black">
+            <img src="https://assets.codepen.io/17688442/doctor+whole.jpeg" alt="Doctor" class="w-full h-full object-cover">
+            
+            <!-- 可點擊的門把：現在點擊會返回醫院大廳並觸發護士眨眼 -->
+            <img src="https://assets.codepen.io/17688442/door+button.png" 
+                 id="item-doorknob"
+                 class="interactive-item"
+                 style="left: 88.3%; top: 57.1%; width: 6.2%; z-index: 50; filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));"
+                 alt="Door Knob"
+                 title="點擊離開"
+                 onclick="backToHospitalFromDoctor()">
+
+            <!-- 左邊箭頭：返回病房 -->
+            <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+                    onclick="backToWardFromDoctor()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
         </div>
@@ -162,21 +186,23 @@
             next();
         }
 
-        function goToHospital() { 
-            switchScene('scene-phone', 'scene-hospital'); 
+        /* 修復遺失的 goToHospital 函數 */
+        function goToHospital() {
+            switchScene('scene-phone', 'scene-hospital');
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
             nurseText = "All visitors are required to sign in. Could you fill this out, please?";
             typeWriterStart();
-            startBlinking(); // 進入醫院場景時，開始護士眨眼動畫
+            startBlinking();
         }
 
+        /* 修復遺失的打字機與動畫變數 */
         let nurseText = "";
         let typeIndex = 0;
         let typeTimer;
 
         function typeWriterStart() {
-            clearTimeout(typeTimer); // 防止重複點擊造成文字重疊
+            clearTimeout(typeTimer);
             document.getElementById('nurse-dialogue-text').innerHTML = "";
             typeIndex = 0;
             typeWriter();
@@ -190,12 +216,11 @@
             }
         }
 
-        /* 護士眨眼動畫系統 */
+        /* 修復遺失的護士眨眼系統 */
         const imgOpen = "https://assets.codepen.io/17688442/scene+1-Registration+Desk.png";
         const imgHalf = "https://assets.codepen.io/17688442/scene+1b-Registration+Desk.png";
         const imgClosed = "https://assets.codepen.io/17688442/scene+1c-Registration+Desk.png";
         
-        // 遊戲載入時預先載入這三張圖片，避免切換時出現白色閃爍
         [imgOpen, imgHalf, imgClosed].forEach(src => {
             const img = new Image();
             img.src = src;
@@ -204,13 +229,9 @@
         let blinkTimer;
         function startBlinking() {
             if (blinkTimer) clearInterval(blinkTimer);
-            
-            // 每 3.5 秒觸發一次自然的眨眼動作
             blinkTimer = setInterval(() => {
                 const bg = document.getElementById('hospital-bg');
                 if (!bg) return;
-                
-                // 順序：半合眼 -> 合眼 -> 半合眼 -> 開眼 (時間差控制幀率)
                 setTimeout(() => bg.src = imgHalf, 60);
                 setTimeout(() => bg.src = imgClosed, 120);
                 setTimeout(() => bg.src = imgHalf, 180);
@@ -222,39 +243,62 @@
             if (blinkTimer) clearInterval(blinkTimer);
         }
 
-        /* 轉場動畫邏輯 */
+        /* 修復遺失的轉場動畫與場景切換邏輯 */
         function transitionToWard() {
-            stopBlinking(); // 離開醫院場景時，停止眨眼計算
+            stopBlinking();
             const fadeOverlay = document.getElementById('fade-overlay');
-            
-            // 1. 畫面漸變為全黑
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
-            
-            // 2. 等待 1 秒 (黑幕完全遮蔽) 後，切換場景
             setTimeout(() => {
                 switchScene('scene-hospital', 'scene-ward');
-                document.getElementById('nurse-speech').classList.add('hidden'); // 隱藏護士對話框
-                
-                // 3. 畫面漸漸變回明亮
+                document.getElementById('nurse-speech').classList.add('hidden');
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
         }
 
-        /* 新增：從病房返回醫院大廳的邏輯，帶有淡入淡出效果 */
-        function backToHospital() {
+        function goToDoctor() {
             const fadeOverlay = document.getElementById('fade-overlay');
-            
-            // 畫面漸黑
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
-            
+            setTimeout(() => {
+                switchScene('scene-ward', 'scene-doctor');
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
+        }
+
+        function backToWardFromDoctor() {
+            const fadeOverlay = document.getElementById('fade-overlay');
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
+            setTimeout(() => {
+                switchScene('scene-doctor', 'scene-ward');
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
+        }
+
+        function backToHospital() {
+            const fadeOverlay = document.getElementById('fade-overlay');
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
             setTimeout(() => {
                 switchScene('scene-ward', 'scene-hospital');
                 startBlinking(); // 重新啟動護士的眨眼動畫
-                
-                // 畫面漸亮
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
+        }
+
+        function backToHospitalFromDoctor() {
+            const fadeOverlay = document.getElementById('fade-overlay');
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
+            setTimeout(() => {
+                // 切換回醫院大廳
+                switchScene('scene-doctor', 'scene-hospital');
+                startBlinking(); // 重新啟動護士的眨眼動畫
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
