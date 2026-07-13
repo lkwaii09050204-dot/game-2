@@ -15,10 +15,9 @@
         .interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
         .interactive-item:hover { animation: pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
 
-        /* 新增：較輕微的閃爍動畫 (給較大的物件使用，例如水果籃、醫生、爸爸、護士) */
         @keyframes mild-pulse-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
-            50% { transform: scale(1.03); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7)); }
+            50% { transform: scale(1.02); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7)); }
             100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
         }
         .mild-interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
@@ -28,7 +27,6 @@
         .active-scene { opacity: 1; pointer-events: auto; position: absolute; inset: 0; }
         .fade-in { transition: opacity 1s ease-in-out; }
 
-        /* 閃爍動畫 */
         @keyframes blink-border {
             0%, 100% { border-color: white; box-shadow: 0 0 10px white; background-color: rgba(255, 255, 255, 0.2); }
             50% { border-color: transparent; }
@@ -44,20 +42,15 @@
             font-size: 1.2rem;
             text-align: center;
         }
-      /* 箭頭發光動畫 */
         @keyframes glow-pulse {
             0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6)); opacity: 0.8; }
             50% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1)); opacity: 1; }
         }
-        .arrow-glow {
-            animation: glow-pulse 2s infinite ease-in-out;
-        }
-      
+        .arrow-glow { animation: glow-pulse 2s infinite ease-in-out; }
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 select-none">
 
-    <!-- 主遊戲容器 -->
     <div id="game-container" class="relative w-full max-w-5xl aspect-ratio-box bg-black shadow-2xl rounded-xl overflow-hidden border-4 border-gray-700">
         
         <!-- 場景 0：開始畫面 -->
@@ -78,20 +71,17 @@
 
         <!-- 場景 2：醫院登記處 -->
         <div id="scene-hospital" class="hidden-scene z-30 bg-black">
-            <!-- 背景圖 -->
             <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
             
-            <!-- 新增：從醫生房間返回大廳後才會顯示的互動式護士疊加圖層 -->
-            <!-- 若護士位置有偏差，請微調這裡的 left, top 與 width 數值 -->
+            <!-- 已修正：完美對齊背景護士的座標尺寸 -->
             <img src="https://assets.codepen.io/17688442/1a.png" 
                  id="item-interactive-nurse"
                  class="mild-interactive-item hidden"
                  style="left: 22.3%; top: 0.855%; width: 54.5%; z-index: 25; transform-origin: center center;"
                  alt="Interactive Nurse"
                  title="與護士交談"
-                 onclick="alert('護士：報告結果出來了嗎？有問題隨時可以問我。')">
+                 onclick="startNurseDialogue()">
 
-            <!-- 登記簿 -->
             <img src="https://assets.codepen.io/17688442/Visitor+log+book-png.png" 
                  id="item-logbook"
                  class="interactive-item" 
@@ -101,7 +91,6 @@
                  onclick="openLogBook()"
                  onerror="this.src='https://placehold.co/300x200/34495e/ecf0f1?text=Log+Book'">
 
-            <!-- 從醫生房間返回大廳後才會顯示的左邊箭頭，點擊返回醫生房間 -->
             <button id="btn-return-doctor" class="hidden absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="goToDoctorFromHospital()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,14 +104,12 @@
             <div class="w-full max-w-4xl h-5/6 relative flex justify-center">
                 <img src="https://assets.codepen.io/17688442/visitor+book+%E5%86%85%E9%A0%81%E8%A8%AD%E8%A8%88.jpeg" alt="Visitor Log Details" class="h-full w-auto object-contain border-4 border-white relative">
                 
-                <!-- 覆蓋在圖片上的輸入框與按鈕，根據圖片比例進行絕對定位 -->
+                <!-- 覆蓋在圖片上的輸入框與按鈕 -->
                 <div class="absolute inset-0 pointer-events-none" style="max-width: 100%; height: 100%;">
-                    <!-- 這些百分比是基於包含圖片的容器 -->
                     <input type="text" id="input-h42" class="blinking-input pointer-events-auto" style="top: 76.38%; left: 34.46%; width: 6%; height: 7%;">
                     <input type="text" id="input-ruth" class="blinking-input pointer-events-auto" style="top: 76.05%; left: 61.75%; width: 8.3%; height: 7%;">
                 </div>
                 
-                <!-- 提交給護士的按鈕 (加上了 id="btn-submit-logbook" 以便隱藏) -->
                 <button id="btn-submit-logbook" onclick="checkAnswers()" class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg text-xl border-2 border-white">
                     Hand in to nurse
                 </button>
@@ -135,14 +122,13 @@
         <div id="scene-ward" class="hidden-scene z-30 bg-black">
             <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/1024x576/2c3e50/ecf0f1?text=Scene+3:+Ward'">
 
-            <!-- 覆蓋在背景上的爸爸圖片 -->
             <img src="https://assets.codepen.io/17688442/dad+only.png" 
                  id="item-dad"
                  class="mild-interactive-item"
                  style="left: 24.5%; top: 32.25%; width: 24%; z-index: 40; transform-origin: center center;"
                  alt="Interactive Dad"
                  title="點擊與爸爸對話"
-                 onclick="alert('爸爸：(抽泣) Evelyn... 都是我的錯...')">
+                 onclick="showDadMessage()">
 
             <img src="https://assets.codepen.io/17688442/fruit.png" 
                  id="item-fruit"
@@ -150,17 +136,15 @@
                  style="left: 68.25%; top: 42.75%; width: 14.5%; z-index: 40; transform-origin: center center;"
                  alt="Fruit Basket"
                  title="Click to examine"
-                 onclick="alert('這籃水果看起來很新鮮，可能是給 Evelyn 的。')">
+                 onclick="showFruitMessage()">
 
-            <!-- 左邊箭頭：原本返回醫院大廳，現在暫時改為提示 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
-                    onclick="alert('此處即將開放新場景...')">
+                    onclick="showLockedMessage()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
             
-            <!-- 右邊箭頭：前往醫生畫面 -->
             <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="goToDoctor()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,16 +157,15 @@
         <div id="scene-doctor" class="hidden-scene z-30 bg-black">
             <img src="https://assets.codepen.io/17688442/doctor+whole.jpeg" alt="Doctor Room Background" class="w-full h-full object-cover">
             
-            <!-- 可點擊的醫生 (精準覆蓋在背景的醫生上) -->
+            <!-- 已升級：點擊醫生觸發全新分支多輪對話系統 -->
             <img src="https://assets.codepen.io/17688442/doctor+only.png" 
                  id="item-doctor"
                  class="mild-interactive-item"
                  style="left: 39.4%; top: 12.3%; width: 31%; z-index: 40; transform-origin: center center;"
                  alt="Interactive Doctor"
                  title="點擊與醫生對話"
-                 onclick="alert('醫生：請稍等，我正在查看報告。')">
+                 onclick="startDoctorDialogue()">
 
-            <!-- 可點擊的門把：現在點擊會返回醫院大廳並觸發護士眨眼 -->
             <img src="https://assets.codepen.io/17688442/door+button.png" 
                  id="item-doorknob"
                  class="interactive-item"
@@ -191,7 +174,6 @@
                  title="點擊離開"
                  onclick="backToHospitalFromDoctor()">
 
-            <!-- 左邊箭頭：返回病房 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="backToWardFromDoctor()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -200,17 +182,22 @@
             </button>
         </div>
         
-        <!-- 轉場專用的全畫面黑幕 -->
         <div id="fade-overlay" class="absolute inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
-
     </div>
 
-    <!-- 護士說話區域 -->
-    <div id="nurse-speech" class="hidden fade-in mt-6 p-6 bg-gray-800 w-full max-w-5xl rounded-xl border-2 border-gray-500 shadow-lg flex items-start space-x-4">
-        <div class="w-14 h-14 rounded-full border-2 border-gray-400 bg-gray-700 flex-shrink-0 flex items-center justify-center text-2xl">👩‍⚕️</div>
-        <div>
-            <p class="text-blue-300 font-bold text-lg mb-1">Nurse Sarah :</p>
-            <p id="nurse-dialogue-text" class="text-xl text-gray-100 font-semibold min-h-[30px]"></p>
+    <!-- 升級版：動態對話展示框 -->
+    <div id="nurse-speech" class="hidden fade-in mt-6 p-6 bg-gray-800 w-full max-w-5xl rounded-xl border-2 border-gray-500 shadow-lg flex flex-col space-y-4">
+        <div class="flex items-start space-x-4">
+            <!-- 動態頭貼區 -->
+            <div id="speech-avatar" class="w-14 h-14 rounded-full border-2 border-gray-400 bg-gray-700 flex-shrink-0 flex items-center justify-center text-2xl">👩‍⚕️</div>
+            <div class="flex-1">
+                <!-- 動態講者名稱 -->
+                <p id="speech-speaker" class="text-blue-300 font-bold text-lg mb-1">Nurse Sarah :</p>
+                <p id="nurse-dialogue-text" class="text-xl text-gray-100 font-semibold min-h-[30px]"></p>
+                
+                <!-- 玩家對話選擇容器 -->
+                <div id="dialogue-options" class="hidden mt-4 flex flex-col space-y-3"></div>
+            </div>
         </div>
     </div>
 
@@ -233,27 +220,34 @@
             next();
         }
 
-        /* 進入醫院大廳 */
         function goToHospital() {
             switchScene('scene-phone', 'scene-hospital');
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            nurseText = "All visitors are required to sign in. Could you fill this out, please?";
-            typeWriterStart();
+            
+            // 初始化為護士外觀
+            document.getElementById('speech-avatar').innerText = "👩‍⚕️";
+            document.getElementById('speech-speaker').innerText = "Nurse Sarah :";
+            document.getElementById('speech-speaker').className = "text-blue-300 font-bold text-lg mb-1";
+            hideOptions();
+
+            typeWriterStart("All visitors are required to sign in. Could you fill this out, please?");
             startBlinking();
-            resetLogbook(); // 確保登記簿可以被點選
+            resetLogbook(); 
         }
 
-        /* 打字機與動畫變數 */
         let nurseText = "";
         let typeIndex = 0;
         let typeTimer;
-        let isLogbookLocked = false; // 追蹤登記簿是否已經完成
+        let isLogbookLocked = false; 
+        let onTypewriterComplete = null;
 
-        function typeWriterStart() {
+        function typeWriterStart(text, callback = null) {
             clearTimeout(typeTimer);
+            if (text) nurseText = text;
             document.getElementById('nurse-dialogue-text').innerHTML = "";
             typeIndex = 0;
+            onTypewriterComplete = callback;
             typeWriter();
         }
 
@@ -261,22 +255,307 @@
             if (typeIndex < nurseText.length) {
                 document.getElementById('nurse-dialogue-text').innerHTML += nurseText.charAt(typeIndex);
                 typeIndex++;
-                typeTimer = setTimeout(typeWriter, 40);
+                typeTimer = setTimeout(typeWriter, 35); 
+            } else if (onTypewriterComplete) {
+                onTypewriterComplete();
+                onTypewriterComplete = null;
             }
         }
 
-        /* 確保任何時候進入護士頁面，登記簿都處於可點擊的狀態 */
+        /* ----- 護士分支對話系統 ----- */
+        function startNurseDialogue() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            // 重置說話者為護士
+            document.getElementById('speech-avatar').innerText = "👩‍⚕️";
+            document.getElementById('speech-speaker').innerText = "Nurse Sarah :";
+            document.getElementById('speech-speaker').className = "text-blue-300 font-bold text-lg mb-1";
+            
+            hideOptions(); 
+            
+            // Turn 1
+            typeWriterStart("Hello. How can I help you?", () => {
+                showOptions([
+                    { text: "Grandma: Can I take a look at the visitor log book?", action: dialogueTurn1 }
+                ]);
+            });
+        }
+
+        function dialogueTurn1() {
+            hideOptions();
+            typeWriterStart("Sure, go ahead.", () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: Thank you. Are there any other visitors here tonight?", action: dialogueTurn2 }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function dialogueTurn2() {
+            hideOptions();
+            typeWriterStart("No, not at all. Everyone entering or leaving must register here.", () => {
+                showOptions([
+                    { text: "Grandma: Is it always this quiet at night?", action: () => dialogueTurn3('A') },
+                    { text: "Grandma: Are you sure no one else came by?", action: () => dialogueTurn3('B') }
+                ]);
+            });
+        }
+
+        function dialogueTurn3(choice) {
+            hideOptions();
+            if (choice === 'A') {
+                typeWriterStart("Yes, it gets very lonely here after midnight. Most people are already asleep.", () => {
+                    showOptions([{ text: "Grandma: Alright. I will just check the log book myself then.", action: dialogueTurn4 }]);
+                });
+            } else if (choice === 'B') {
+                typeWriterStart("Positive. I have been at this desk all night, and nobody else has passed through.", () => {
+                    showOptions([{ text: "Grandma: Alright. I will just check the log book myself then.", action: dialogueTurn4 }]);
+                });
+            }
+        }
+
+        function dialogueTurn4() {
+            hideOptions();
+            typeWriterStart("Please do. The book is right there. Let me know if you need anything else.");
+        }
+
+        /* ----- 醫生分支對話系統 ----- */
+        function startDoctorDialogue() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            // 初始化說話者為醫生
+            document.getElementById('speech-avatar').innerText = "👨‍⚕️";
+            document.getElementById('speech-speaker').innerText = "Doctor Evans :";
+            document.getElementById('speech-speaker').className = "text-emerald-400 font-bold text-lg mb-1";
+            
+            hideOptions();
+            
+            // Turn 1
+            typeWriterStart("Hello. I need to ask you a question about Evelyn. Does she fall down often? Is she careless?", () => {
+                showOptions([
+                    { text: "Grandma: Why do you ask, Doctor? Is something wrong?", action: () => doctorTurn1('A') },
+                    { text: "Grandma: I am not sure. Did you find something during the surgery?", action: () => doctorTurn1('B') }
+                ]);
+            });
+        }
+
+        function doctorTurn1(choice) {
+            hideOptions();
+            let responseText = "";
+            if (choice === 'A') {
+                responseText = "We found some small bruises on her body. They look older than the car accident.";
+            } else if (choice === 'B') {
+                responseText = "Yes. We noticed some older bruises on her arms. They happened before the crash.";
+            }
+            
+            typeWriterStart(responseText, () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: I don't live with her, so I don't know much about her daily life.", action: () => doctorTurn2('A') },
+                        { text: "Grandma: She did not tell me anything. But we do not live together.", action: () => doctorTurn2('B') }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function doctorTurn2(choice) {
+            hideOptions();
+            // Universal Response
+            typeWriterStart("I see. But the shape of these bruises is strange. They do not look like normal injuries from falling down.", () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: Could it be a family health problem? Her father had a stroke and always lost his balance and fell.", action: () => doctorTurn3('A') },
+                        { text: "Grandma: Did she faint before the crash? Her father had a stroke and often passed out suddenly.", action: () => doctorTurn3('B') }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function doctorTurn3(choice) {
+            hideOptions();
+            let responseText = "";
+            if (choice === 'A') {
+                responseText = "That is possible. But when people lose their balance, they usually hurt their knees or hands. Evelyn's bruises are on her upper arms and shoulders.";
+            } else if (choice === 'B') {
+                responseText = "If she passed out, she would just fall flat on the floor. But these marks look more like pressure marks—like someone grabbed her—not a fall.";
+            }
+            
+            typeWriterStart(responseText, () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: Please, Doctor, check her again very carefully. We need to be sure.", action: () => doctorTurn4('A') },
+                        { text: "Grandma: Please do a full checkup on her. I want to know the truth.", action: () => doctorTurn4('B') }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function doctorTurn4(choice) {
+            hideOptions();
+            // Universal Response
+            typeWriterStart("I will check her again very carefully. But ma'am... if these marks are not from simple falls, it could be a very different story. Let's wait for her to wake up first.", () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: Thank you, Doctor. I trust you.", action: () => {
+                            hideOptions();
+                            document.getElementById('nurse-speech').classList.add('hidden');
+                        }}
+                    ]);
+                }, 1000);
+            });
+        }
+
+        /* ----- 整合：無彈出視窗（No-Alert）系統 ----- */
+        function showDadMessage() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "👨";
+            document.getElementById('speech-speaker').innerText = "Dad :";
+            document.getElementById('speech-speaker').className = "text-amber-400 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("(Dad is sitting by the bed, looking exhausted and heartbroken.)", () => {
+                showOptions([
+                    { text: "Grandma: Thank goodness the surgery is finally over... Is she still asleep from the medicine?", action: () => dadTurn1('A') },
+                    { text: "Grandma: Seeing her lying there covered in all these injuries breaks my heart... How on earth did this happen?", action: () => dadTurn1('B') }
+                ]);
+            });
+        }
+
+        function dadTurn1(choice) {
+            hideOptions();
+            let responseText = "";
+            if (choice === 'A') {
+                responseText = "The doctor said the surgery was a success, and now we just have to wait for her to wake up... But seeing her like this, it truly cuts me to the heart.";
+            } else if (choice === 'B') {
+                responseText = "It's all my fault... I'm so sorry, Mom, for putting you through this. Looking at her lying there, I wish it were me instead.";
+            }
+            
+            typeWriterStart(responseText, () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: I just don't understand. Why would Evelyn drive out all by herself so late at night?", action: () => dadTurn2('A') },
+                        { text: "Grandma: The police mentioned that the accident site wasn't even on her usual route home. Where could she possibly be going at that hour?", action: () => dadTurn2('B') }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function dadTurn2(choice) {
+            hideOptions();
+            typeWriterStart("I... I really don't know. I was working late at the office and completely lost track of time. By the time I got the call, the crash had already happened. I regret it so much. If only I hadn't been working overtime... if only I had stayed home to keep her company, maybe none of this would have happened.", () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: You were just working hard for this family. It's normal to work overtime sometimes, don't blame yourself too much.", action: () => dadTurn3('A') },
+                        { text: "Grandma: Has something been going on between the two of you lately? She seemed so anxious recently...", action: () => dadTurn3('B') }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function dadTurn3(choice) {
+            hideOptions();
+            let responseText = "";
+            if (choice === 'A') {
+                responseText = "But Mom... it's exactly because I'm always working overtime, spending all my time on work, that I neglected her feelings... I really haven't been a good husband.";
+            } else if (choice === 'B') {
+                responseText = "No, not at all. We’ve been great. Maybe... maybe I've just been working too much overtime lately, and she was overthinking things alone at home. She probably just went for a drive to clear her head.";
+            }
+            
+            typeWriterStart(responseText, () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: I'll watch over her. You’ve been working all day, why don't you go lie down on the bench over there?", action: () => dadTurn4('A') },
+                        { text: "Grandma: Since the surgery went well, let's not disturb her. Let's just sit down together and wait for her to open her eyes.", action: () => dadTurn4('B') }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function dadTurn4(choice) {
+            hideOptions();
+            typeWriterStart("Thank you, Mom. But I want to stay right here with her. No matter what, as long as she's safe and sound right here... she can't go anywhere else now. Please, sit down and rest with me.", () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Close", action: () => {
+                            hideOptions();
+                            document.getElementById('nurse-speech').classList.add('hidden');
+                        }}
+                    ]);
+                }, 1000);
+            });
+        }
+
+        function showFruitMessage() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "🧺";
+            document.getElementById('speech-speaker').innerText = "Observation :";
+            document.getElementById('speech-speaker').className = "text-yellow-400 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("This fruit basket looks fresh, probably bought for Evelyn.", () => {
+                showOptions([
+                    { text: "Close", action: () => {
+                        hideOptions();
+                        document.getElementById('nurse-speech').classList.add('hidden');
+                    }}
+                ]);
+            });
+        }
+
+        function showLockedMessage() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "🔒";
+            document.getElementById('speech-speaker').innerText = "System :";
+            document.getElementById('speech-speaker').className = "text-gray-400 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("This path is currently locked. The next chapter will open soon!", () => {
+                showOptions([
+                    { text: "Close", action: () => {
+                        hideOptions();
+                        document.getElementById('nurse-speech').classList.add('hidden');
+                    }}
+                ]);
+            });
+        }
+
+        /* ----- 共用語法輔助 ----- */
+        function showOptions(optionsArray) {
+            const container = document.getElementById('dialogue-options');
+            container.innerHTML = ''; 
+            optionsArray.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "text-left px-5 py-3 bg-gray-700 hover:bg-gray-600 text-gray-100 font-semibold rounded-lg border-2 border-gray-500 transition-colors shadow-md";
+                btn.innerText = opt.text;
+                btn.onclick = opt.action;
+                container.appendChild(btn);
+            });
+            container.classList.remove('hidden');
+        }
+
+        function hideOptions() {
+            document.getElementById('dialogue-options').classList.add('hidden');
+        }
+
         function resetLogbook() {
             const logbookItem = document.getElementById('item-logbook');
             if (logbookItem) {
                 if (!logbookItem.classList.contains('interactive-item')) {
                     logbookItem.classList.add('interactive-item');
                 }
-                logbookItem.style.pointerEvents = 'auto'; // 啟用點擊事件
+                logbookItem.style.pointerEvents = 'auto'; 
             }
         }
 
-        /* 護士眨眼系統：現在能同時控制背景圖層與互動圖層！ */
         const imgOpen = "https://assets.codepen.io/17688442/scene+1-Registration+Desk.png";
         const imgHalf = "https://assets.codepen.io/17688442/scene+1b-Registration+Desk.png";
         const imgClosed = "https://assets.codepen.io/17688442/scene+1c-Registration+Desk.png";
@@ -285,7 +564,6 @@
         const intNurseHalf = "https://assets.codepen.io/17688442/1b.png";
         const intNurseClosed = "https://assets.codepen.io/17688442/1c.png";
         
-        // 預載所有圖片避免閃爍
         [imgOpen, imgHalf, imgClosed, intNurseOpen, intNurseHalf, intNurseClosed].forEach(src => {
             const img = new Image();
             img.src = src;
@@ -298,7 +576,6 @@
                 const bg = document.getElementById('hospital-bg');
                 const intNurse = document.getElementById('item-interactive-nurse');
                 
-                // 控制背景眨眼
                 if (bg) {
                     setTimeout(() => bg.src = imgHalf, 60);
                     setTimeout(() => bg.src = imgClosed, 120);
@@ -306,7 +583,6 @@
                     setTimeout(() => bg.src = imgOpen, 240);
                 }
 
-                // 如果互動式護士按鈕已被啟用 (非隱藏狀態)，也讓她跟著眨眼！
                 if (intNurse && !intNurse.classList.contains('hidden')) {
                     setTimeout(() => intNurse.src = intNurseHalf, 60);
                     setTimeout(() => intNurse.src = intNurseClosed, 120);
@@ -320,7 +596,6 @@
             if (blinkTimer) clearInterval(blinkTimer);
         }
 
-        /* 轉場動畫與場景切換邏輯 */
         function transitionToWard() {
             stopBlinking();
             const fadeOverlay = document.getElementById('fade-overlay');
@@ -335,6 +610,8 @@
         }
 
         function goToDoctor() {
+            // 切換場景時隱藏對話框，避免舊對話殘留
+            document.getElementById('nurse-speech').classList.add('hidden');
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
@@ -346,6 +623,7 @@
         }
 
         function backToWardFromDoctor() {
+            document.getElementById('nurse-speech').classList.add('hidden');
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
@@ -357,43 +635,41 @@
         }
 
         function backToHospital() {
+            document.getElementById('nurse-speech').classList.add('hidden');
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
             setTimeout(() => {
                 switchScene('scene-ward', 'scene-hospital');
-                startBlinking(); // 重新啟動護士的眨眼動畫
-                resetLogbook(); // 確保重新回到護士大廳時，登記簿是可以被點擊的
+                startBlinking(); 
+                resetLogbook(); 
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
         }
 
         function backToHospitalFromDoctor() {
+            document.getElementById('nurse-speech').classList.add('hidden');
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
             setTimeout(() => {
-                // 切換回醫院大廳
                 switchScene('scene-doctor', 'scene-hospital');
                 
-                // 1. 解除隱藏，顯示可以返回醫生房間的箭頭
                 document.getElementById('btn-return-doctor').classList.remove('hidden');
-                
-                // 2. 解除隱藏，顯示「可點擊且會眨眼的護士圖層」
                 document.getElementById('item-interactive-nurse').classList.remove('hidden');
                 
-                startBlinking(); // 重新啟動護士的眨眼動畫
-                resetLogbook(); // 確保點擊門把退回大廳時，登記簿維持可以被點選狀態
+                startBlinking(); 
+                resetLogbook(); 
                 
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
         }
 
-        /* 從醫院大廳前往醫生場景的邏輯 */
         function goToDoctorFromHospital() {
-            stopBlinking(); // 離開大廳時停止護士眨眼
+            document.getElementById('nurse-speech').classList.add('hidden');
+            stopBlinking(); 
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
@@ -404,7 +680,6 @@
             }, 1000);
         }
 
-        // 驗證答案邏輯
         function checkAnswers() {
             const wardInput = document.getElementById('input-h42').value.trim().toLowerCase();
             const relInput = document.getElementById('input-ruth').value.trim().toLowerCase();
@@ -413,44 +688,36 @@
             const isRelCorrect = (['mother', 'mum', 'mom'].includes(relInput));
 
             if (isWardCorrect && isRelCorrect) {
-                isLogbookLocked = true; // 標記謎題已解開
-                nurseText = "Thank you. You may come in.";
-                typeWriterStart();
-                closeLogBook(); // 答案正確，關閉登記簿
+                isLogbookLocked = true; 
+                typeWriterStart("Thank you. You may come in.");
+                closeLogBook(); 
                 
-                // 停止桌上登記簿的閃爍與點擊效果（進入大廳後會被 resetLogbook 重新啟用，符合您的全時點擊要求）
                 const logbookItem = document.getElementById('item-logbook');
-                logbookItem.classList.remove('interactive-item'); // 移除 hover 動畫和可點擊游標
-                logbookItem.style.pointerEvents = 'none'; // 暫時停用
+                logbookItem.classList.remove('interactive-item'); 
+                logbookItem.style.pointerEvents = 'none'; 
                 
-                // 觸發轉場動畫 (等待 3 秒讓玩家看完護士的台詞)
                 setTimeout(transitionToWard, 3000);
                 
             } else {
-                nurseText = "Please make sure the information is correct.";
-                typeWriterStart(); // 答案錯誤，不關閉登記簿並更新對話
+                typeWriterStart("Please make sure the information is correct.");
             }
         }
 
         function openLogBook() { 
             document.getElementById('modal-logbook').classList.remove('hidden'); 
             
-            // 如果謎題已經解開，則鎖定輸入並隱藏按鈕
             if (isLogbookLocked) {
                 const inputH42 = document.getElementById('input-h42');
                 const inputRuth = document.getElementById('input-ruth');
                 
-                // 設為唯讀，不允許打字
                 inputH42.readOnly = true;
                 inputRuth.readOnly = true;
                 
-                // 移除紅框閃爍動畫，看起來像固定的文字
                 inputH42.style.animation = 'none';
                 inputH42.style.border = 'none';
                 inputRuth.style.animation = 'none';
                 inputRuth.style.border = 'none';
                 
-                // 隱藏提交按鈕
                 document.getElementById('btn-submit-logbook').classList.add('hidden');
             }
         }
