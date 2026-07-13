@@ -15,7 +15,7 @@
         .interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
         .interactive-item:hover { animation: pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
 
-        /* 新增：較輕微的閃爍動畫 (給較大的物件使用，例如水果籃、醫生、爸爸) */
+        /* 新增：較輕微的閃爍動畫 (給較大的物件使用，例如水果籃、醫生、爸爸、護士) */
         @keyframes mild-pulse-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
             50% { transform: scale(1.03); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7)); }
@@ -78,13 +78,24 @@
 
         <!-- 場景 2：醫院登記處 -->
         <div id="scene-hospital" class="hidden-scene z-30 bg-black">
-            <!-- 加入 ID 以便 JavaScript 切換圖片來產生眨眼效果 -->
+            <!-- 背景圖 -->
             <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
             
+            <!-- 新增：從醫生房間返回大廳後才會顯示的互動式護士疊加圖層 -->
+            <!-- 若護士位置有偏差，請微調這裡的 left, top 與 width 數值 -->
+            <img src="https://assets.codepen.io/17688442/1a.png" 
+                 id="item-interactive-nurse"
+                 class="mild-interactive-item hidden"
+                 style="left: 22.3%; top: 0.855%; width: 54.5%; z-index: 25; transform-origin: center center;"
+                 alt="Interactive Nurse"
+                 title="與護士交談"
+                 onclick="alert('護士：報告結果出來了嗎？有問題隨時可以問我。')">
+
+            <!-- 登記簿 -->
             <img src="https://assets.codepen.io/17688442/Visitor+log+book-png.png" 
                  id="item-logbook"
                  class="interactive-item" 
-                 style="left: 46%; top: 73%; width: 19%; transform-origin: center center;"
+                 style="left: 46%; top: 73%; width: 19%; z-index: 30; transform-origin: center center;"
                  alt="Visitor Log Book"
                  title="Click to examine"
                  onclick="openLogBook()"
@@ -265,12 +276,17 @@
             }
         }
 
-        /* 護士眨眼系統 */
+        /* 護士眨眼系統：現在能同時控制背景圖層與互動圖層！ */
         const imgOpen = "https://assets.codepen.io/17688442/scene+1-Registration+Desk.png";
         const imgHalf = "https://assets.codepen.io/17688442/scene+1b-Registration+Desk.png";
         const imgClosed = "https://assets.codepen.io/17688442/scene+1c-Registration+Desk.png";
+
+        const intNurseOpen = "https://assets.codepen.io/17688442/1a.png";
+        const intNurseHalf = "https://assets.codepen.io/17688442/1b.png";
+        const intNurseClosed = "https://assets.codepen.io/17688442/1c.png";
         
-        [imgOpen, imgHalf, imgClosed].forEach(src => {
+        // 預載所有圖片避免閃爍
+        [imgOpen, imgHalf, imgClosed, intNurseOpen, intNurseHalf, intNurseClosed].forEach(src => {
             const img = new Image();
             img.src = src;
         });
@@ -280,11 +296,23 @@
             if (blinkTimer) clearInterval(blinkTimer);
             blinkTimer = setInterval(() => {
                 const bg = document.getElementById('hospital-bg');
-                if (!bg) return;
-                setTimeout(() => bg.src = imgHalf, 60);
-                setTimeout(() => bg.src = imgClosed, 120);
-                setTimeout(() => bg.src = imgHalf, 180);
-                setTimeout(() => bg.src = imgOpen, 240);
+                const intNurse = document.getElementById('item-interactive-nurse');
+                
+                // 控制背景眨眼
+                if (bg) {
+                    setTimeout(() => bg.src = imgHalf, 60);
+                    setTimeout(() => bg.src = imgClosed, 120);
+                    setTimeout(() => bg.src = imgHalf, 180);
+                    setTimeout(() => bg.src = imgOpen, 240);
+                }
+
+                // 如果互動式護士按鈕已被啟用 (非隱藏狀態)，也讓她跟著眨眼！
+                if (intNurse && !intNurse.classList.contains('hidden')) {
+                    setTimeout(() => intNurse.src = intNurseHalf, 60);
+                    setTimeout(() => intNurse.src = intNurseClosed, 120);
+                    setTimeout(() => intNurse.src = intNurseHalf, 180);
+                    setTimeout(() => intNurse.src = intNurseOpen, 240);
+                }
             }, 3500); 
         }
 
@@ -348,11 +376,15 @@
             setTimeout(() => {
                 // 切換回醫院大廳
                 switchScene('scene-doctor', 'scene-hospital');
+                
+                // 1. 解除隱藏，顯示可以返回醫生房間的箭頭
+                document.getElementById('btn-return-doctor').classList.remove('hidden');
+                
+                // 2. 解除隱藏，顯示「可點擊且會眨眼的護士圖層」
+                document.getElementById('item-interactive-nurse').classList.remove('hidden');
+                
                 startBlinking(); // 重新啟動護士的眨眼動畫
                 resetLogbook(); // 確保點擊門把退回大廳時，登記簿維持可以被點選狀態
-                
-                // 解除隱藏，顯示可以返回醫生房間的箭頭
-                document.getElementById('btn-return-doctor').classList.remove('hidden');
                 
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
