@@ -7,19 +7,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .aspect-ratio-box { aspect-ratio: 16 / 9; }
+        
+        /* 統一的發光與微微放大動畫 (給小物件如門把、登記簿、水果籃使用) */
         @keyframes pulse-hover {
-            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5)); }
-            50% { transform: scale(1.15); filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5)); }
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4)); }
+            50% { transform: scale(1.03); filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4)); }
         }
         .interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
         .interactive-item:hover { animation: pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
-
-        /* 新增：較輕微的閃爍動畫 (給較大的物件使用，例如水果籃、醫生、爸爸、護士、兒子) */
+        
+        /* 新增：減弱一半的發光與放大動畫 (專門給面積大的人物如兒子、醫生、護士、爸爸使用) */
         @keyframes mild-pulse-hover {
-            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
-            50% { transform: scale(1.02); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
+            0% { transform: scale(1); filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.2)); }
+            50% { transform: scale(1.015); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.2)); }
         }
         .mild-interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
         .mild-interactive-item:hover { animation: mild-pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
@@ -74,7 +76,6 @@
         <div id="scene-hospital" class="hidden-scene z-30 bg-black">
             <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
             
-            <!-- 護士疊加圖層：更改 onclick 為 startNurseDialogue() -->
             <img src="https://assets.codepen.io/17688442/1a.png" 
                  id="item-interactive-nurse"
                  class="mild-interactive-item hidden"
@@ -105,7 +106,6 @@
             <div class="w-full max-w-4xl h-5/6 relative flex justify-center">
                 <img src="https://assets.codepen.io/17688442/visitor+book+%E5%86%85%E9%A0%81%E8%A8%AD%E8%A8%88.jpeg" alt="Visitor Log Details" class="h-full w-auto object-contain border-4 border-white relative">
                 
-                <!-- 覆蓋在圖片上的輸入框與按鈕 -->
                 <div class="absolute inset-0 pointer-events-none" style="max-width: 100%; height: 100%;">
                     <input type="text" id="input-h42" class="blinking-input pointer-events-auto" style="top: 76.38%; left: 34.46%; width: 6%; height: 7%;">
                     <input type="text" id="input-ruth" class="blinking-input pointer-events-auto" style="top: 76.05%; left: 61.75%; width: 8.3%; height: 7%;">
@@ -133,13 +133,12 @@
 
             <img src="https://assets.codepen.io/17688442/fruit.png" 
                  id="item-fruit"
-                 class="mild-interactive-item"
+                 class="interactive-item"
                  style="left: 68.25%; top: 42.75%; width: 14.5%; z-index: 40; transform-origin: center center;"
                  alt="Fruit Basket"
                  title="Click to examine"
                  onclick="showFruitMessage()">
 
-            <!-- 左邊箭頭：點擊前往兒子角落 (Son Corner) -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="goToSon()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -147,7 +146,6 @@
                 </svg>
             </button>
             
-            <!-- 右邊箭頭：前往醫生房間 -->
             <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="goToDoctor()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -160,7 +158,6 @@
         <div id="scene-son" class="hidden-scene z-30 bg-black">
             <img src="https://assets.codepen.io/17688442/son+scene.jpeg" alt="Toby in Hospital Hallway Corner" class="w-full h-full object-cover">
             
-            <!-- 已修正：精準覆蓋於角落兒子的互動去背貼圖 -->
             <img src="https://assets.codepen.io/17688442/son+only.png" 
                  id="item-son" 
                  class="mild-interactive-item" 
@@ -169,7 +166,6 @@
                  title="點擊與 Toby 對話"
                  onclick="startSonDialogue()">
 
-            <!-- 左邊箭頭：已鎖定路徑提示 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="showLockedMessage()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,7 +173,6 @@
                 </svg>
             </button>
 
-            <!-- 右邊箭頭：返回病房 -->
             <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="backToWardFromSon()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -206,7 +201,6 @@
                  title="點擊離開"
                  onclick="backToHospitalFromDoctor()">
 
-            <!-- 左邊箭頭：返回病房 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="backToWardFromDoctor()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -258,7 +252,6 @@
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
             
-            // 初始化說話者外觀與名字 (護士)
             document.getElementById('speech-avatar').innerText = "👩‍⚕️";
             document.getElementById('speech-speaker').innerText = "Nurse Sarah :";
             document.getElementById('speech-speaker').className = "text-blue-300 font-bold text-lg mb-1";
@@ -295,19 +288,16 @@
             }
         }
 
-        /* ----- 護士分支對話系統 ----- */
         function startNurseDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
             
-            // 重置說話者為護士
             document.getElementById('speech-avatar').innerText = "👩‍⚕️";
             document.getElementById('speech-speaker').innerText = "Nurse Sarah :";
             document.getElementById('speech-speaker').className = "text-blue-300 font-bold text-lg mb-1";
             
             hideOptions(); 
             
-            // Turn 1
             typeWriterStart("Hello. How can I help you?", () => {
                 showOptions([
                     { text: "Grandma: Can I take a look at the visitor log book?", action: dialogueTurn1 }
@@ -354,19 +344,16 @@
             typeWriterStart("Please do. The book is right there. Let me know if you need anything else.");
         }
 
-        /* ----- 醫生分支對話系統 ----- */
         function startDoctorDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
             
-            // 初始化說話者為醫生
             document.getElementById('speech-avatar').innerText = "👨‍⚕️";
             document.getElementById('speech-speaker').innerText = "Doctor Evans :";
             document.getElementById('speech-speaker').className = "text-emerald-400 font-bold text-lg mb-1";
             
             hideOptions();
             
-            // Turn 1
             typeWriterStart("Hello. I need to ask you a question about Evelyn. Does she fall down often? Is she careless?", () => {
                 showOptions([
                     { text: "Grandma: Why do you ask, Doctor? Is something wrong?", action: () => doctorTurn1('A') },
@@ -439,7 +426,6 @@
             });
         }
 
-        /* ----- 整合：無彈出視窗（No-Alert）系統 ----- */
         function showDadMessage() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -521,7 +507,6 @@
             });
         }
 
-        /* ----- 兒子 Toby 全新 4 回合分支對話系統 ----- */
         function startSonDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -641,7 +626,6 @@
             });
         }
 
-        /* ----- 共用語法輔助 ----- */
         function showOptions(optionsArray) {
             const container = document.getElementById('dialogue-options');
             container.innerHTML = ''; 
@@ -723,7 +707,6 @@
         }
 
         function goToSon() {
-            // 從病房點選左箭頭 ➔ 轉場至兒子角落
             document.getElementById('nurse-speech').classList.add('hidden');
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
@@ -736,7 +719,6 @@
         }
 
         function backToWardFromSon() {
-            // 從兒子角落 ➔ 返回病房
             document.getElementById('nurse-speech').classList.add('hidden');
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
