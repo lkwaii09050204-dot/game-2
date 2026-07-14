@@ -15,6 +15,7 @@
         .interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
         .interactive-item:hover { animation: pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
 
+        /* 新增：較輕微的閃爍動畫 (給較大的物件使用，例如水果籃、醫生、爸爸、護士、兒子) */
         @keyframes mild-pulse-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
             50% { transform: scale(1.02); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7)); }
@@ -73,7 +74,7 @@
         <div id="scene-hospital" class="hidden-scene z-30 bg-black">
             <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
             
-            <!-- 已修正：完美對齊背景護士的座標尺寸 -->
+            <!-- 護士疊加圖層：更改 onclick 為 startNurseDialogue() -->
             <img src="https://assets.codepen.io/17688442/1a.png" 
                  id="item-interactive-nurse"
                  class="mild-interactive-item hidden"
@@ -138,15 +139,47 @@
                  title="Click to examine"
                  onclick="showFruitMessage()">
 
+            <!-- 左邊箭頭：點擊前往兒子角落 (Son Corner) -->
+            <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+                    onclick="goToSon()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            
+            <!-- 右邊箭頭：前往醫生房間 -->
+            <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+                    onclick="goToDoctor()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- 場景 5：兒子角落 (Son Scene) -->
+        <div id="scene-son" class="hidden-scene z-30 bg-black">
+            <img src="https://assets.codepen.io/17688442/son+scene.jpeg" alt="Toby in Hospital Hallway Corner" class="w-full h-full object-cover">
+            
+            <!-- 已修正：精準覆蓋於角落兒子的互動去背貼圖 -->
+            <img src="https://assets.codepen.io/17688442/son+only.png" 
+                 id="item-son" 
+                 class="mild-interactive-item" 
+                 style="left: 6.75%; top: 38.5%; width: 25%; height: auto; z-index: 40; transform-origin: center center;"
+                 alt="Interactive Toby"
+                 title="點擊與 Toby 對話"
+                 onclick="startSonDialogue()">
+
+            <!-- 左邊箭頭：已鎖定路徑提示 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="showLockedMessage()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
-            
+
+            <!-- 右邊箭頭：返回病房 -->
             <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
-                    onclick="goToDoctor()">
+                    onclick="backToWardFromSon()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
                 </svg>
@@ -157,7 +190,6 @@
         <div id="scene-doctor" class="hidden-scene z-30 bg-black">
             <img src="https://assets.codepen.io/17688442/doctor+whole.jpeg" alt="Doctor Room Background" class="w-full h-full object-cover">
             
-            <!-- 已升級：點擊醫生觸發全新分支多輪對話系統 -->
             <img src="https://assets.codepen.io/17688442/doctor+only.png" 
                  id="item-doctor"
                  class="mild-interactive-item"
@@ -174,6 +206,7 @@
                  title="點擊離開"
                  onclick="backToHospitalFromDoctor()">
 
+            <!-- 左邊箭頭：返回病房 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="backToWardFromDoctor()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -185,17 +218,17 @@
         <div id="fade-overlay" class="absolute inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
     </div>
 
-    <!-- 升級版：動態對話展示框 -->
+    <!-- 整合式動態故事對話對話框 -->
     <div id="nurse-speech" class="hidden fade-in mt-6 p-6 bg-gray-800 w-full max-w-5xl rounded-xl border-2 border-gray-500 shadow-lg flex flex-col space-y-4">
         <div class="flex items-start space-x-4">
-            <!-- 動態頭貼區 -->
+            <!-- 動態頭貼頭像 -->
             <div id="speech-avatar" class="w-14 h-14 rounded-full border-2 border-gray-400 bg-gray-700 flex-shrink-0 flex items-center justify-center text-2xl">👩‍⚕️</div>
             <div class="flex-1">
-                <!-- 動態講者名稱 -->
+                <!-- 動態說話人名稱與顏色 -->
                 <p id="speech-speaker" class="text-blue-300 font-bold text-lg mb-1">Nurse Sarah :</p>
                 <p id="nurse-dialogue-text" class="text-xl text-gray-100 font-semibold min-h-[30px]"></p>
                 
-                <!-- 玩家對話選擇容器 -->
+                <!-- 玩家互動選擇按鈕容器 -->
                 <div id="dialogue-options" class="hidden mt-4 flex flex-col space-y-3"></div>
             </div>
         </div>
@@ -225,7 +258,7 @@
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
             
-            // 初始化為護士外觀
+            // 初始化說話者外觀與名字 (護士)
             document.getElementById('speech-avatar').innerText = "👩‍⚕️";
             document.getElementById('speech-speaker').innerText = "Nurse Sarah :";
             document.getElementById('speech-speaker').className = "text-blue-300 font-bold text-lg mb-1";
@@ -363,7 +396,6 @@
 
         function doctorTurn2(choice) {
             hideOptions();
-            // Universal Response
             typeWriterStart("I see. But the shape of these bruises is strange. They do not look like normal injuries from falling down.", () => {
                 setTimeout(() => {
                     showOptions([
@@ -395,11 +427,10 @@
 
         function doctorTurn4(choice) {
             hideOptions();
-            // Universal Response
             typeWriterStart("I will check her again very carefully. But ma'am... if these marks are not from simple falls, it could be a very different story. Let's wait for her to wake up first.", () => {
                 setTimeout(() => {
                     showOptions([
-                        { text: "Grandma: Thank you, Doctor. I trust you.", action: () => {
+                        { text: "Close", action: () => {
                             hideOptions();
                             document.getElementById('nurse-speech').classList.add('hidden');
                         }}
@@ -479,6 +510,88 @@
         function dadTurn4(choice) {
             hideOptions();
             typeWriterStart("Thank you, Mom. But I want to stay right here with her. No matter what, as long as she's safe and sound right here... she can't go anywhere else now. Please, sit down and rest with me.", () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Close", action: () => {
+                            hideOptions();
+                            document.getElementById('nurse-speech').classList.add('hidden');
+                        }}
+                    ]);
+                }, 1000);
+            });
+        }
+
+        /* ----- 兒子 Toby 全新 4 回合分支對話系統 ----- */
+        function startSonDialogue() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "👦";
+            document.getElementById('speech-speaker').innerText = "Toby :";
+            document.getElementById('speech-speaker').className = "text-sky-300 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("(Toby sits curled up in the corner, tightly hugging his knees. He looks utterly lost in thought.)", () => {
+                showOptions([
+                    { text: "Grandma: Are you okay? You look so pale. How are you holding up?", action: () => sonTurn1('A') },
+                    { text: "Grandma: I was looking for you. Have you been sitting here all by yourself?", action: () => sonTurn1('B') }
+                ]);
+            });
+        }
+
+        function sonTurn1(choice) {
+            hideOptions();
+            let responseText = "";
+            if (choice === 'A') {
+                responseText = "I'm fine, Grandma... Just tired.";
+            } else if (choice === 'B') {
+                responseText = "Yeah... I needed some quiet. It’s too heavy in here.";
+            }
+            
+            typeWriterStart(responseText, () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: I know this is scary for you. Your mother will wake up soon, don't worry.", action: () => sonTurn2() },
+                        { text: "Grandma: You can talk to me. Are you worried about what happened to your mom tonight?", action: () => sonTurn2() }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function sonTurn2() {
+            hideOptions();
+            typeWriterStart("I don't know, Grandma. Maybe... maybe she shouldn't wake up.", () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: Why would you say that? That's your mother!", action: () => sonTurn3('A') },
+                        { text: "Grandma: What do you mean? Did something happen before she left?", action: () => sonTurn3('B') }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function sonTurn3(choice) {
+            hideOptions();
+            let responseText = "";
+            if (choice === 'A') {
+                responseText = "Nothing. I just mean... she looked so unhappy lately. It was always so loud at home.";
+            } else if (choice === 'B') {
+                responseText = "We... we don't talk anymore. Dad was always staying late at work, and Mom... Mom was always packed.";
+            }
+            
+            typeWriterStart(responseText, () => {
+                setTimeout(() => {
+                    showOptions([
+                        { text: "Grandma: No matter what, you still have me. We will get through this.", action: () => sonTurn4() },
+                        { text: "Grandma: If there is something I should know, you must tell me.", action: () => sonTurn4() }
+                    ]);
+                }, 800);
+            });
+        }
+
+        function sonTurn4() {
+            hideOptions();
+            typeWriterStart("Thanks, Grandma. But it doesn't matter now... Nothing matters anymore...", () => {
                 setTimeout(() => {
                     showOptions([
                         { text: "Close", action: () => {
@@ -609,8 +722,33 @@
             }, 1000);
         }
 
+        function goToSon() {
+            // 從病房點選左箭頭 ➔ 轉場至兒子角落
+            document.getElementById('nurse-speech').classList.add('hidden');
+            const fadeOverlay = document.getElementById('fade-overlay');
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
+            setTimeout(() => {
+                switchScene('scene-ward', 'scene-son');
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
+        }
+
+        function backToWardFromSon() {
+            // 從兒子角落 ➔ 返回病房
+            document.getElementById('nurse-speech').classList.add('hidden');
+            const fadeOverlay = document.getElementById('fade-overlay');
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
+            setTimeout(() => {
+                switchScene('scene-son', 'scene-ward');
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
+        }
+
         function goToDoctor() {
-            // 切換場景時隱藏對話框，避免舊對話殘留
             document.getElementById('nurse-speech').classList.add('hidden');
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
