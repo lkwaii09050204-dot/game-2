@@ -148,6 +148,15 @@
                  title="Click to examine"
                  onclick="showFruitMessage()">
 
+            <!-- 心電圖顯示器 (動態切換圖片，互動按鈕) -->
+            <img src="https://assets.codepen.io/17688442/mon+1.png" 
+                 id="item-monitor"
+                 class="interactive-item"
+                 style="left: 78%; top: 15.55%; width: 14%; z-index: 40; transform-origin: center center;"
+                 alt="Heart Monitor"
+                 title="Check Monitor"
+                 onclick="showMonitorMessage()">
+
             <!-- 左邊箭頭：前往兒子角落 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="goToSon()">
@@ -632,6 +641,25 @@
             });
         }
 
+        function showMonitorMessage() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "🫀";
+            document.getElementById('speech-speaker').innerText = "Monitor :";
+            document.getElementById('speech-speaker').className = "text-green-400 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("Evelyn's vitals are stable. The steady rhythm brings a small sense of relief amidst the chaos.", () => {
+                showOptions([
+                    { text: "Close", action: () => {
+                        hideOptions();
+                        document.getElementById('nurse-speech').classList.add('hidden');
+                    }}
+                ]);
+            });
+        }
+
         function showLockedMessage() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -691,7 +719,19 @@
             img.src = src;
         });
 
+        // 預載心電圖 19 張圖片
+        const monitorImages = [];
+        for (let i = 1; i <= 19; i++) {
+            const imgSrc = `https://assets.codepen.io/17688442/mon+${i}.png`;
+            const img = new Image();
+            img.src = imgSrc;
+            monitorImages.push(imgSrc);
+        }
+
         let blinkTimer;
+        let monitorTimer;
+        let currentMonitorFrame = 0;
+
         function startBlinking() {
             if (blinkTimer) clearInterval(blinkTimer);
             blinkTimer = setInterval(() => {
@@ -718,8 +758,39 @@
             if (blinkTimer) clearInterval(blinkTimer);
         }
 
+        // 心電圖運作動畫控制
+        function startMonitorAnimation() {
+            if (monitorTimer) clearInterval(monitorTimer);
+            const monitorEl = document.getElementById('item-monitor');
+            if (!monitorEl) return;
+
+            monitorTimer = setInterval(() => {
+                currentMonitorFrame = (currentMonitorFrame + 1) % 19;
+                monitorEl.src = monitorImages[currentMonitorFrame];
+            }, 100); // 每 100 毫秒切換一張，形成流暢動畫
+        }
+
+        function stopMonitorAnimation() {
+            if (monitorTimer) clearInterval(monitorTimer);
+        }
+
         function transitionToWard() {
             stopBlinking();
+            const fadeOverlay = document.getElementById('fade-overlay');
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
+            setTimeout(() => {
+                switchScene('scene-hospital', 'scene-ward');
+                document.getElementById('nurse-speech').classList.add('hidden');
+                startMonitorAnimation(); // 進入病房場景時啟動心電圖
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
+        }
+
+        function goToSon() {
+            document.getElementById('nurse-speech').classList.add('hidden');
+            stopMonitorAnimation(); // 離開病房場景時停止心電圖
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
@@ -750,6 +821,7 @@
             fadeOverlay.classList.add('opacity-100');
             setTimeout(() => {
                 switchScene('scene-son', 'scene-ward');
+                startMonitorAnimation(); // 返回病房場景時啟動心電圖
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
@@ -757,6 +829,7 @@
 
         function goToDoctor() {
             document.getElementById('nurse-speech').classList.add('hidden');
+            stopMonitorAnimation(); // 離開病房場景時停止心電圖
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
@@ -774,6 +847,7 @@
             fadeOverlay.classList.add('opacity-100');
             setTimeout(() => {
                 switchScene('scene-doctor', 'scene-ward');
+                startMonitorAnimation(); // 返回病房場景時啟動心電圖
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
@@ -781,6 +855,7 @@
 
         function backToHospital() {
             document.getElementById('nurse-speech').classList.add('hidden');
+            stopMonitorAnimation(); // 離開病房場景時停止心電圖
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
