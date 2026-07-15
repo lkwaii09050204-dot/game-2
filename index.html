@@ -17,7 +17,7 @@
         .interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
         .interactive-item:hover { animation: pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
         
-        /* 新增：減弱一半的發光與放大動畫 (專門給面積大的人物如兒子、醫生、護士、爸爸使用) */
+        /* 減弱一半的發光與放大動畫 (專門給面積大的人物如兒子、醫生、護士、爸爸使用，視覺更穩定) */
         @keyframes mild-pulse-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.2)); }
             50% { transform: scale(1.015); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)); }
@@ -54,13 +54,18 @@
 </head>
 <body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 select-none">
 
+    <!-- 背景音樂播放器 (自動播放 & 循環) -->
+    <audio id="bg-music" loop>
+        <source src="Walen - Conspiracy Detective (freetouse.com).mp3" type="audio/mpeg">
+    </audio>
+
     <div id="game-container" class="relative w-full max-w-5xl aspect-ratio-box bg-black shadow-2xl rounded-xl overflow-hidden border-4 border-gray-700">
         
         <!-- 場景 0：開始畫面 -->
         <div id="scene-start" class="active-scene bg-gray-800 flex flex-col items-center justify-center text-white z-50">
             <h1 class="text-5xl font-bold mb-4 tracking-widest text-red-400">The Price of Lies</h1>
             <h2 class="text-2xl mb-12 text-gray-300">Chapter 2: Accident and Truth</h2>
-            <button onclick="startGame()" class="px-8 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full transition transform hover:scale-105 shadow-lg">Start Game</button>
+            <button onclick="startGame()" class="px-8 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full transition transform scale-105 hover:scale-110 shadow-lg">Start Game</button>
         </div>
 
         <!-- 場景 1：警察來電 -->
@@ -76,6 +81,7 @@
         <div id="scene-hospital" class="hidden-scene z-30 bg-black">
             <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
             
+            <!-- 護士去背疊加圖層 (使用溫和閃爍 mild-interactive-item) -->
             <img src="https://assets.codepen.io/17688442/1a.png" 
                  id="item-interactive-nurse"
                  class="mild-interactive-item hidden"
@@ -84,6 +90,7 @@
                  title="與護士交談"
                  onclick="startNurseDialogue()">
 
+            <!-- 登記簿 (小物件，使用 pulse-hover) -->
             <img src="https://assets.codepen.io/17688442/Visitor+log+book-png.png" 
                  id="item-logbook"
                  class="interactive-item" 
@@ -123,6 +130,7 @@
         <div id="scene-ward" class="hidden-scene z-30 bg-black">
             <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/1024x576/2c3e50/ecf0f1?text=Scene+3:+Ward'">
 
+            <!-- 爸爸人物圖層 (溫和閃爍) -->
             <img src="https://assets.codepen.io/17688442/dad+only.png" 
                  id="item-dad"
                  class="mild-interactive-item"
@@ -131,6 +139,7 @@
                  title="點擊與爸爸對話"
                  onclick="showDadMessage()">
 
+            <!-- 水果籃 (小物件，普通閃爍) -->
             <img src="https://assets.codepen.io/17688442/fruit.png" 
                  id="item-fruit"
                  class="interactive-item"
@@ -139,6 +148,7 @@
                  title="Click to examine"
                  onclick="showFruitMessage()">
 
+            <!-- 左邊箭頭：前往兒子角落 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="goToSon()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -146,6 +156,7 @@
                 </svg>
             </button>
             
+            <!-- 右邊箭頭：前往醫生房間 -->
             <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="goToDoctor()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -158,6 +169,7 @@
         <div id="scene-son" class="hidden-scene z-30 bg-black">
             <img src="https://assets.codepen.io/17688442/son+scene.jpeg" alt="Toby in Hospital Hallway Corner" class="w-full h-full object-cover">
             
+            <!-- 兒子 Toby 人物圖層 (溫和閃爍) -->
             <img src="https://assets.codepen.io/17688442/son+only.png" 
                  id="item-son" 
                  class="mild-interactive-item" 
@@ -185,6 +197,7 @@
         <div id="scene-doctor" class="hidden-scene z-30 bg-black">
             <img src="https://assets.codepen.io/17688442/doctor+whole.jpeg" alt="Doctor Room Background" class="w-full h-full object-cover">
             
+            <!-- 醫生人物圖層 (溫和閃爍) -->
             <img src="https://assets.codepen.io/17688442/doctor+only.png" 
                  id="item-doctor"
                  class="mild-interactive-item"
@@ -193,6 +206,7 @@
                  title="點擊與醫生對話"
                  onclick="startDoctorDialogue()">
 
+            <!-- 門把手 (普通閃爍) -->
             <img src="https://assets.codepen.io/17688442/door+button.png" 
                  id="item-doorknob"
                  class="interactive-item"
@@ -215,14 +229,11 @@
     <!-- 整合式動態故事對話對話框 -->
     <div id="nurse-speech" class="hidden fade-in mt-6 p-6 bg-gray-800 w-full max-w-5xl rounded-xl border-2 border-gray-500 shadow-lg flex flex-col space-y-4">
         <div class="flex items-start space-x-4">
-            <!-- 動態頭貼頭像 -->
             <div id="speech-avatar" class="w-14 h-14 rounded-full border-2 border-gray-400 bg-gray-700 flex-shrink-0 flex items-center justify-center text-2xl">👩‍⚕️</div>
             <div class="flex-1">
-                <!-- 動態說話人名稱與顏色 -->
                 <p id="speech-speaker" class="text-blue-300 font-bold text-lg mb-1">Nurse Sarah :</p>
                 <p id="nurse-dialogue-text" class="text-xl text-gray-100 font-semibold min-h-[30px]"></p>
                 
-                <!-- 玩家互動選擇按鈕容器 -->
                 <div id="dialogue-options" class="hidden mt-4 flex flex-col space-y-3"></div>
             </div>
         </div>
@@ -247,7 +258,17 @@
             next();
         }
 
+        // 玩家點擊急奔醫院按鈕，安全播放背景音樂並切換場景
         function goToHospital() {
+            // 背景音樂控制：玩家行為觸發，安全啟動
+            const bgMusic = document.getElementById('bg-music');
+            if (bgMusic) {
+                bgMusic.volume = 0.4;
+                bgMusic.play().catch(error => {
+                    console.log("Background music autoplay was prevented:", error);
+                });
+            }
+
             switchScene('scene-phone', 'scene-hospital');
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -288,6 +309,7 @@
             }
         }
 
+        /* 護士對話 */
         function startNurseDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -344,6 +366,7 @@
             typeWriterStart("Please do. The book is right there. Let me know if you need anything else.");
         }
 
+        /* 醫生分支對話 */
         function startDoctorDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -426,6 +449,7 @@
             });
         }
 
+        /* 爸爸分支對話 */
         function showDadMessage() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -507,6 +531,7 @@
             });
         }
 
+        /* 兒子 Toby 對話 */
         function startSonDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
