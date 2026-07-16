@@ -219,6 +219,15 @@
                  style="left: 33%; top: 0.01%; width: 67.15%; height: auto; z-index: 44;"
                  alt="Open Curtain">
 
+            <!-- 窗戶前的花束 (隨窗戶打開時顯示，帶有呼吸效果) -->
+            <img src="https://assets.codepen.io/17688442/blur+flower.png" 
+                 id="item-flower-bouquet"
+                 class="breathing-item opacity-0 pointer-events-none transition-opacity duration-1000"
+                 style="left: 42%; top: 38%; width: 8%; z-index: 46; transform-origin: center center;"
+                 alt="Flower Bouquet"
+                 title="Examine Flowers"
+                 onclick="showFlowerMessage()">
+
             <!-- 兒子 Toby 人物圖層 (溫和閃爍) -->
             <img src="https://assets.codepen.io/17688442/son+only.png" 
                  id="item-son" 
@@ -729,6 +738,25 @@
             });
         }
 
+        function showFlowerMessage() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "💐";
+            document.getElementById('speech-speaker').innerText = "Observation :";
+            document.getElementById('speech-speaker').className = "text-pink-400 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("A beautiful bouquet of flowers sitting quietly by the window... The tag says 'Sending lots of love, J.' ...Who could 'J' be?", () => {
+                showOptions([
+                    { text: "Close", action: () => {
+                        hideOptions();
+                        document.getElementById('nurse-speech').classList.add('hidden');
+                    }}
+                ]);
+            });
+        }
+
         function openCurtain() {
             // 隱藏原本的窗簾按鈕
             const curtainBtn = document.getElementById('item-curtain');
@@ -739,6 +767,13 @@
             const openCurtainImg = document.getElementById('item-open-curtain');
             openCurtainImg.classList.remove('opacity-0');
             openCurtainImg.classList.add('opacity-100');
+
+            // 同時淡入顯示窗前的花束按鈕
+            const flowerBtn = document.getElementById('item-flower-bouquet');
+            if (flowerBtn) {
+                flowerBtn.classList.remove('opacity-0', 'pointer-events-none');
+                flowerBtn.classList.add('opacity-100');
+            }
 
             // 顯示對話框
             const speechBox = document.getElementById('nurse-speech');
