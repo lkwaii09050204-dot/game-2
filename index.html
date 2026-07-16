@@ -50,6 +50,15 @@
             50% { filter: drop-shadow(0 0 15px rgba(255, 255, 255, 1)); opacity: 1; }
         }
         .arrow-glow { animation: glow-pulse 2s infinite ease-in-out; }
+        
+        /* 專屬項鍊的輕微呼吸動畫 */
+        @keyframes breathing-hover {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2)); }
+        }
+        .breathing-item { position: absolute; cursor: pointer; transition: all 0.6s ease; }
+        .breathing-item:hover { animation: breathing-hover 2.5s infinite ease-in-out; z-index: 10; }
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 select-none">
@@ -156,6 +165,15 @@
                  alt="Heart Monitor"
                  title="Check Monitor"
                  onclick="showMonitorMessage()">
+
+            <!-- 項鍊 (輕微呼吸效果) -->
+            <img src="https://assets.codepen.io/17688442/necklace.png" 
+                 id="item-necklace"
+                 class="breathing-item"
+                 style="left: 60.75%; top: 46.25%; width: 6.25%; z-index: 45; transform-origin: center center;"
+                 alt="Necklace"
+                 title="Examine Necklace"
+                 onclick="showNecklaceMessage()">
 
             <!-- 左邊箭頭：前往兒子角落 -->
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
@@ -651,6 +669,25 @@
             
             hideOptions();
             typeWriterStart("Evelyn's vitals are stable. The steady rhythm brings a small sense of relief amidst the chaos.", () => {
+                showOptions([
+                    { text: "Close", action: () => {
+                        hideOptions();
+                        document.getElementById('nurse-speech').classList.add('hidden');
+                    }}
+                ]);
+            });
+        }
+
+        function showNecklaceMessage() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "📿";
+            document.getElementById('speech-speaker').innerText = "Observation :";
+            document.getElementById('speech-speaker').className = "text-purple-400 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("A peculiar dark beaded necklace... It looks a bit out of place. Evelyn rarely wears things like this.", () => {
                 showOptions([
                     { text: "Close", action: () => {
                         hideOptions();
