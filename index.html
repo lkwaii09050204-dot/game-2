@@ -125,9 +125,9 @@
                  onclick="openLogBook()"
                  onerror="this.src='https://placehold.co/300x200/34495e/ecf0f1?text=Log+Book'">
 
-            <button id="btn-return-doctor" class="hidden absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+            <button id="btn-return-doctor" class="hidden absolute left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow" 
                     onclick="goToDoctorFromHospital()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
@@ -192,17 +192,17 @@
                  onclick="showNecklaceMessage()">
 
             <!-- 左邊箭頭：前往兒子角落 -->
-            <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+            <button class="absolute left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow" 
                     onclick="goToSon()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
             
             <!-- 右邊箭頭：前往醫生房間 -->
-            <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+            <button class="absolute right-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow" 
                     onclick="goToDoctor()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
                 </svg>
             </button>
@@ -246,16 +246,11 @@
                  title="Examine Curtain"
                  onclick="openCurtain()">
 
-            <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
-                    onclick="showLockedMessage()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-
-            <button class="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+            <!-- 右邊返回按鈕：往右箭頭，回到爸爸病房 -->
+            <button class="absolute right-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow" 
                     onclick="backToWardFromSon()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <!-- 向右的箭頭路徑 -->
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
                 </svg>
             </button>
@@ -283,9 +278,9 @@
                  title="點擊離開"
                  onclick="backToHospitalFromDoctor()">
 
-            <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
+            <button class="absolute left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow" 
                     onclick="backToWardFromDoctor()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
