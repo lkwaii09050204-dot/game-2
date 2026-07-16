@@ -68,6 +68,13 @@
         }
         .subtle-breathing-item { position: absolute; cursor: pointer; transition: all 0.6s ease; }
         .subtle-breathing-item:hover { animation: subtle-breathing-hover 3s infinite ease-in-out; z-index: 10; }
+
+        /* 新增：為圖片左側與底部加入羽化漸層，使其完美融入背景 */
+        .fade-left-bottom {
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%), linear-gradient(to top, transparent 0%, black 12%);
+            -webkit-mask-composite: source-in;
+            mask-composite: intersect;
+        }
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 select-none">
@@ -205,6 +212,13 @@
         <div id="scene-son" class="hidden-scene z-30 bg-black">
             <img src="https://assets.codepen.io/17688442/son+scene.jpeg" alt="Toby in Hospital Hallway Corner" class="w-full h-full object-cover">
             
+            <!-- 打開後的窗簾 (加入 fade-left-bottom 類別以羽化邊緣) -->
+            <img src="https://assets.codepen.io/17688442/open+curtain.jpeg" 
+                 id="item-open-curtain"
+                 class="absolute opacity-0 pointer-events-none transition-opacity duration-1000 fade-left-bottom"
+                 style="left: 33%; top: 0.01%; width: 67.15%; height: auto; z-index: 44;"
+                 alt="Open Curtain">
+
             <!-- 兒子 Toby 人物圖層 (溫和閃爍) -->
             <img src="https://assets.codepen.io/17688442/son+only.png" 
                  id="item-son" 
@@ -221,7 +235,7 @@
                  style="left: 34%; top: 0%; width: 24.5%; height: auto; z-index: 45; transform-origin: left center;"
                  alt="Hospital Curtain"
                  title="Examine Curtain"
-                 onclick="showCurtainMessage()">
+                 onclick="openCurtain()">
 
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="showLockedMessage()">
@@ -715,7 +729,18 @@
             });
         }
 
-        function showCurtainMessage() {
+        function openCurtain() {
+            // 隱藏原本的窗簾按鈕
+            const curtainBtn = document.getElementById('item-curtain');
+            curtainBtn.style.pointerEvents = 'none';
+            curtainBtn.classList.add('hidden');
+
+            // 淡入顯示打開後的窗簾圖片
+            const openCurtainImg = document.getElementById('item-open-curtain');
+            openCurtainImg.classList.remove('opacity-0');
+            openCurtainImg.classList.add('opacity-100');
+
+            // 顯示對話框
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
             
@@ -724,7 +749,7 @@
             document.getElementById('speech-speaker').className = "text-gray-400 font-bold text-lg mb-1";
             
             hideOptions();
-            typeWriterStart("The hospital curtains are drawn tightly. It feels suffocatingly quiet in this isolated corner.", () => {
+            typeWriterStart("You pulled back the curtains. The dark night sky outside offers little comfort, but the air feels slightly less suffocating.", () => {
                 showOptions([
                     { text: "Close", action: () => {
                         hideOptions();
