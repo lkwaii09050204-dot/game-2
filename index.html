@@ -59,6 +59,15 @@
         }
         .breathing-item { position: absolute; cursor: pointer; transition: all 0.6s ease; }
         .breathing-item:hover { animation: breathing-hover 2.5s infinite ease-in-out; z-index: 10; }
+
+        /* 更微弱的呼吸動畫 (專門降低大面積物件如窗簾的放大程度，但保留較明顯的發光) */
+        @keyframes subtle-breathing-hover {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
+            50% { transform: scale(1.01); filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
+        }
+        .subtle-breathing-item { position: absolute; cursor: pointer; transition: all 0.6s ease; }
+        .subtle-breathing-item:hover { animation: subtle-breathing-hover 3s infinite ease-in-out; z-index: 10; }
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-4 select-none">
@@ -204,6 +213,15 @@
                  alt="Interactive Toby"
                  title="點擊與 Toby 對話"
                  onclick="startSonDialogue()">
+
+            <!-- 左邊窗簾 (極微弱呼吸效果) -->
+            <img src="https://assets.codepen.io/17688442/curtain+button.png" 
+                 id="item-curtain"
+                 class="subtle-breathing-item"
+                 style="left: 34%; top: 0%; width: 24.5%; height: auto; z-index: 45; transform-origin: left center;"
+                 alt="Hospital Curtain"
+                 title="Examine Curtain"
+                 onclick="showCurtainMessage()">
 
             <button class="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-40 arrow-glow" 
                     onclick="showLockedMessage()">
@@ -688,6 +706,25 @@
             
             hideOptions();
             typeWriterStart("A peculiar dark beaded necklace... It looks a bit out of place. Evelyn rarely wears things like this.", () => {
+                showOptions([
+                    { text: "Close", action: () => {
+                        hideOptions();
+                        document.getElementById('nurse-speech').classList.add('hidden');
+                    }}
+                ]);
+            });
+        }
+
+        function showCurtainMessage() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "🪟";
+            document.getElementById('speech-speaker').innerText = "Observation :";
+            document.getElementById('speech-speaker').className = "text-gray-400 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("The hospital curtains are drawn tightly. It feels suffocatingly quiet in this isolated corner.", () => {
                 showOptions([
                     { text: "Close", action: () => {
                         hideOptions();
