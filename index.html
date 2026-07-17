@@ -278,6 +278,15 @@
                  title="點擊與醫生對話"
                  onclick="startDoctorDialogue()">
 
+            <!-- 燈開關 -->
+            <img src="https://assets.codepen.io/17688442/original.png" 
+                 id="item-lightswitch"
+                 class="breathing-item"
+                 style="left: 78%; top: 49%; width: 14%; z-index: 45; transform-origin: center center;"
+                 alt="Light Switch"
+                 title="Examine Light Switch"
+                 onclick="showLightSwitchMessage()">
+
             <!-- 門把手 -->
             <img src="https://assets.codepen.io/17688442/door+button.png" 
                  id="item-doorknob"
@@ -769,6 +778,25 @@
             
             hideOptions();
             typeWriterStart("A beautiful bouquet of flowers sitting quietly by the window... The tag says 'Sending lots of love, J.' ...Who could 'J' be?", () => {
+                showOptions([
+                    { text: "Close", action: () => {
+                        hideOptions();
+                        document.getElementById('nurse-speech').classList.add('hidden');
+                    }}
+                ]);
+            });
+        }
+
+        function showLightSwitchMessage() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "💡";
+            document.getElementById('speech-speaker').innerText = "Observation :";
+            document.getElementById('speech-speaker').className = "text-yellow-300 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("It's a standard hospital light switch. It feels slightly loose, as if someone had flicked it heavily in frustration.", () => {
                 showOptions([
                     { text: "Close", action: () => {
                         hideOptions();
