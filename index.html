@@ -35,7 +35,7 @@
             50% { border-color: transparent; }
         }
         
-        /* 針對行動裝置優化：字體必須大於等於 16px (1rem) 以防止 iOS 自動縮放畫面 */
+        /* 針對行動裝置優化：字體大於等於 16px 防止 iOS 自動縮放畫面 */
         .blinking-input {
             position: absolute;
             border: 2px solid red;
@@ -55,7 +55,7 @@
         }
         .arrow-glow { animation: glow-pulse 2s infinite ease-in-out; }
         
-        /* 專屬項鍊的輕微呼吸動畫 */
+        /* 專屬項鍊與花束的輕微呼吸動畫 */
         @keyframes breathing-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2)); }
             50% { transform: scale(1.05); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5)); }
@@ -120,7 +120,7 @@
                  title="與護士交談"
                  onclick="startNurseDialogue()">
 
-            <!-- 登記簿 (點擊區域加大以優化手機觸控) -->
+            <!-- 登記簿 -->
             <img src="https://assets.codepen.io/17688442/Visitor+log+book-png.png" 
                  id="item-logbook"
                  class="interactive-item" 
@@ -130,7 +130,7 @@
                  onclick="openLogBook()"
                  onerror="this.src='https://placehold.co/300x200/34495e/ecf0f1?text=Log+Book'">
 
-            <!-- 返回按鈕 -->
+            <!-- 返回按鈕 (極高優先級 z-50 防止被遮擋) -->
             <button id="btn-return-doctor" class="hidden absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
                     onclick="goToDoctorFromHospital()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,7 +150,7 @@
                     <input type="text" id="input-ruth" class="blinking-input pointer-events-auto" style="top: 76.05%; left: 61.75%; width: 9%; height: 7.5%;" autocomplete="off" autocapitalize="off" spellcheck="false">
                 </div>
                 
-                <!-- 手機版關閉按鈕，放在右上角更明顯 -->
+                <!-- 手機版關閉按鈕 -->
                 <button onclick="closeLogBook()" class="absolute -top-10 right-2 text-white font-bold text-3xl sm:text-4xl hover:text-red-400 active:scale-90">&times;</button>
             </div>
             
@@ -163,7 +163,7 @@
 
         <!-- 場景 3：病房內 -->
         <div id="scene-ward" class="hidden-scene z-30 bg-black">
-            <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/1024x576/2c3e50/ecf0f1?text=Scene+3:+Ward'">
+            <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover">
 
             <!-- 爸爸人物圖層 -->
             <img src="https://assets.codepen.io/17688442/dad+only.png" 
@@ -256,7 +256,7 @@
                  title="Examine Curtain"
                  onclick="openCurtain()">
 
-            <!-- 右邊返回按鈕：往右箭頭，回到爸爸病房 (確保 z-50 頂層渲染) -->
+            <!-- 右邊返回按鈕：往右箭頭，回到爸爸病房 (確保 z-50 頂層渲染且不消失) -->
             <button class="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
                     onclick="backToWardFromSon()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -269,7 +269,7 @@
         <div id="scene-doctor" class="hidden-scene z-30 bg-black">
             <img src="https://assets.codepen.io/17688442/doctor+whole.jpeg" alt="Doctor Room Background" class="w-full h-full object-cover">
             
-            <!-- 醫生人物圖層 -->
+            <!-- 醫生人物圖層 (更新為 doctor no doc 檔案) -->
             <img src="https://assets.codepen.io/17688442/doctor+no+doc.png" 
                  id="item-doctor"
                  class="mild-interactive-item"
@@ -277,6 +277,15 @@
                  alt="Interactive Doctor"
                  title="點擊與醫生對話"
                  onclick="startDoctorDialogue()">
+
+            <!-- 病歷文件疊加圖層 (新增：doctor doc.png，放置在手部空隙位置，帶有互動呼吸效果) -->
+            <img src="https://assets.codepen.io/17688442/doctor+doc.png" 
+                 id="item-doctor-doc"
+                 class="breathing-item"
+                 style="left: 53%; top: 37.3%; width: 17%; z-index: 42; transform-origin: center center;"
+                 alt="Medical Document"
+                 title="Examine Diagnosis Report"
+                 onclick="showDoctorDocMessage()">
 
             <!-- 燈開關 -->
             <img src="https://assets.codepen.io/17688442/original.png" 
@@ -305,6 +314,7 @@
             </button>
         </div>
         
+        <!-- 全螢幕切換場景過渡遮罩 -->
         <div id="fade-overlay" class="absolute inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
     </div>
 
@@ -318,6 +328,7 @@
                     <p id="speech-speaker" class="text-blue-300 font-bold text-base sm:text-lg mb-0.5 sm:mb-1">Nurse Sarah :</p>
                     <p id="nurse-dialogue-text" class="text-base sm:text-xl text-gray-100 font-semibold min-h-[24px] sm:min-h-[30px] leading-relaxed"></p>
                     
+                    <!-- 互動選擇按鈕容器 -->
                     <div id="dialogue-options" class="hidden mt-3 sm:mt-4 flex flex-col space-y-2 sm:space-y-3"></div>
                 </div>
             </div>
@@ -711,6 +722,7 @@
             });
         }
 
+        /* 觀察物件文字 */
         function showFruitMessage() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -806,6 +818,26 @@
             });
         }
 
+        /* 點擊病歷文件的對話 (新增) */
+        function showDoctorDocMessage() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            
+            document.getElementById('speech-avatar').innerText = "📋";
+            document.getElementById('speech-speaker').innerText = "Diagnosis Report :";
+            document.getElementById('speech-speaker').className = "text-sky-400 font-bold text-lg mb-1";
+            
+            hideOptions();
+            typeWriterStart("This is Evelyn's detailed medical chart... In addition to the crash injuries, the report specifically notes multiple healing grip-marks on her upper arms, listed as 'highly suspicious'.", () => {
+                showOptions([
+                    { text: "Close", action: () => {
+                        hideOptions();
+                        document.getElementById('nurse-speech').classList.add('hidden');
+                    }}
+                ]);
+            });
+        }
+
         function openCurtain() {
             const curtainBtn = document.getElementById('item-curtain');
             curtainBtn.style.pointerEvents = 'none';
@@ -839,12 +871,12 @@
             });
         }
 
+        /* 介面操作輔助邏輯 */
         function showOptions(optionsArray) {
             const container = document.getElementById('dialogue-options');
             container.innerHTML = ''; 
             optionsArray.forEach(opt => {
                 const btn = document.createElement('button');
-                // 對話按鈕樣式改為合適大小以利觸控，增加 active 觸控按壓反饋
                 btn.className = "text-left px-4 py-2.5 sm:px-5 sm:py-3 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-gray-100 font-semibold rounded-lg border border-gray-500 transition-colors shadow-md text-sm sm:text-base active:scale-[0.98]";
                 btn.innerText = opt.text;
                 btn.onclick = opt.action;
@@ -867,6 +899,7 @@
             }
         }
 
+        /* 預載入與過場圖片管理 */
         const imgOpen = "https://assets.codepen.io/17688442/scene+1-Registration+Desk.png";
         const imgHalf = "https://assets.codepen.io/17688442/scene+1b-Registration+Desk.png";
         const imgClosed = "https://assets.codepen.io/17688442/scene+1c-Registration+Desk.png";
@@ -875,7 +908,6 @@
         const intNurseHalf = "https://assets.codepen.io/17688442/1b.png";
         const intNurseClosed = "https://assets.codepen.io/17688442/1c.png";
         
-        // 預先載入圖片防止手機版場景切換時閃爍白屏
         [imgOpen, imgHalf, imgClosed, intNurseOpen, intNurseHalf, intNurseClosed].forEach(src => {
             const img = new Image();
             img.src = src;
@@ -934,6 +966,7 @@
             if (monitorTimer) clearInterval(monitorTimer);
         }
 
+        /* 跨場景轉場邏輯 */
         function transitionToWard() {
             stopBlinking();
             const fadeOverlay = document.getElementById('fade-overlay');
