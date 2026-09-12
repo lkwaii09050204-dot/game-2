@@ -97,12 +97,14 @@
             
             <div id="game-container" class="relative w-full aspect-ratio-box bg-black shadow-2xl rounded-xl overflow-hidden border-2 sm:border-4 border-gray-700">
                 
+                <!-- 開始畫面 -->
                 <div id="scene-start" class="active-scene bg-gray-800 flex flex-col items-center justify-center text-white z-50 p-4">
                     <h1 class="text-3xl sm:text-5xl font-bold mb-4 tracking-widest text-red-400 text-center">The Price of Lies</h1>
                     <h2 class="text-lg sm:text-2xl mb-12 text-gray-300 text-center">Chapter 2: Accident and Truth</h2>
                     <button onclick="startGame()" class="px-6 py-2.5 sm:px-8 sm:py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full transition transform scale-105 hover:scale-110 shadow-lg active:scale-95">Start Game</button>
                 </div>
 
+                <!-- 電話場景 -->
                 <div id="scene-phone" class="hidden-scene bg-gray-900 flex flex-col items-center justify-center z-40 relative p-4">
                     <div class="z-10 text-center max-w-xl">
                         <div class="text-5xl sm:text-6xl mb-6">📱</div>
@@ -111,6 +113,7 @@
                     </div>
                 </div>
 
+                <!-- 醫院大廳場景 -->
                 <div id="scene-hospital" class="hidden-scene z-30 bg-black">
                     <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
                     
@@ -159,6 +162,7 @@
                     </div>
                 </div>
 
+                <!-- 病房場景 -->
                 <div id="scene-ward" class="hidden-scene z-30 bg-black">
                     <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover">
 
@@ -197,6 +201,7 @@
                     </button>
                 </div>
 
+                <!-- 兒子場景 -->
                 <div id="scene-son" class="hidden-scene z-30 bg-black">
                     <img src="https://assets.codepen.io/17688442/son+scene.jpeg" alt="Toby in Hospital Hallway Corner" class="w-full h-full object-cover">
                     
@@ -227,8 +232,9 @@
                     </button>
                 </div>
 
+                <!-- 醫生房間 -->
                 <div id="scene-doctor" class="hidden-scene z-30 bg-black">
-                    <!-- 全黑遮罩 (層級44)，覆蓋除了病歷文件與左右箭頭以外的物品 -->
+                    <!-- 全黑遮罩 (層級44)，關燈時會顯示，但不阻擋點擊 (pointer-events-none) -->
                     <div id="room-darkness" class="absolute inset-0 bg-black z-[44] opacity-0 pointer-events-none transition-opacity duration-700"></div>
                     
                     <img src="https://assets.codepen.io/17688442/doctor+whole.jpeg" alt="Doctor Room Background" class="w-full h-full object-cover">
@@ -253,6 +259,7 @@
                          style="left: 88.3%; top: 57.1%; width: 6.2%; z-index: 40; filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));"
                          onclick="backToHospitalFromDoctor()">
 
+                    <!-- 左側箭頭維持在最上層，確保黑暗中依然可見 -->
                     <button class="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
                             onclick="backToWardFromDoctor()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -264,6 +271,7 @@
                 <div id="fade-overlay" class="absolute inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
             </div>
 
+            <!-- 對話框區域 -->
             <div class="w-full h-[240px] sm:h-[280px] mt-3 sm:mt-6 shrink-0">
                 <div id="nurse-speech" class="hidden fade-in w-full h-full p-4 sm:p-6 bg-gray-800 rounded-xl border-2 border-gray-500 shadow-lg flex flex-col space-y-3 sm:space-y-4 overflow-y-auto">
                     <div class="flex items-start space-x-3 sm:space-x-4">
@@ -279,6 +287,7 @@
             
         </div>
 
+        <!-- 收集欄位 -->
         <div class="w-full lg:w-[200px] bg-gray-800 border-2 border-gray-600 rounded-xl p-4 flex flex-row lg:flex-col overflow-x-auto lg:overflow-y-visible items-center gap-4 shrink-0 shadow-xl">
             <h3 class="text-white font-bold text-base lg:text-lg text-center tracking-wider shrink-0">
                 EVIDENCE<br>
@@ -300,7 +309,20 @@
 
     </div>
 
-    <div id="modal-quiz" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center p-4">
+    <!-- 檢視物品彈出視窗 -->
+    <div id="modal-inspect-item" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-4xl h-[70%] sm:h-[80%] relative flex flex-col items-center justify-center bg-gray-800 rounded-xl border-2 border-gray-500 p-4 shadow-2xl">
+            <h3 id="inspect-title" class="text-2xl sm:text-4xl text-white font-bold mb-4 tracking-widest text-blue-400"></h3>
+            <div class="relative w-full flex-1 flex justify-center items-center overflow-hidden">
+                <img id="inspect-image" src="" alt="Inspect Item" class="max-w-full max-h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+            </div>
+            <button onclick="closeInspectModal()" class="absolute top-4 right-4 sm:-top-12 sm:-right-12 text-white font-bold text-3xl sm:text-5xl hover:text-red-400 active:scale-90 transition-transform">&times;</button>
+            <button onclick="closeInspectModal()" class="mt-6 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg text-lg border border-blue-400 active:scale-95">Close</button>
+        </div>
+    </div>
+
+    <!-- 終局解謎彈出視窗 -->
+    <div id="modal-quiz" class="hidden fixed inset-0 bg-black/95 z-[160] flex flex-col items-center justify-center p-4">
         <div class="w-full max-w-2xl bg-gray-800 border-2 border-blue-500 rounded-xl p-6 sm:p-10 text-center shadow-[0_0_30px_rgba(59,130,246,0.5)]">
             <div class="text-6xl mb-4">🔍</div>
             <h2 class="text-2xl sm:text-4xl text-white font-bold mb-4">Truth Revealed</h2>
@@ -321,7 +343,7 @@
         const MAX_ITEMS = 5;
         const collectedIds = new Set();
 
-        function collectEvidence(itemId, iconEmoji, itemName) {
+        function collectEvidence(itemId, imgUrl, itemName) {
             if (collectedIds.has(itemId) || collectedItemsCount >= MAX_ITEMS) return;
             
             collectedIds.add(itemId);
@@ -331,29 +353,50 @@
             
             const slot = document.getElementById(`slot-${collectedItemsCount}`);
             slot.classList.remove('border-dashed', 'border-gray-600', 'text-gray-500');
-            slot.classList.add('border-solid', 'border-blue-400', 'text-white', 'bg-blue-900/30', 'slot-filled');
+            // 加入游標特效與發光效果讓玩家知道可以點擊
+            slot.classList.add('border-solid', 'border-blue-400', 'text-white', 'bg-blue-900/30', 'slot-filled', 'cursor-pointer', 'hover:bg-blue-800/60', 'transition-colors');
             
             slot.innerHTML = `
-                <div class="text-3xl lg:text-4xl mb-1">${iconEmoji}</div>
+                <img src="${imgUrl}" alt="${itemName}" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-16 lg:h-16 object-contain mb-1 drop-shadow-md">
                 <div class="text-[10px] lg:text-xs font-bold text-blue-200 text-center leading-tight px-1">${itemName}</div>
             `;
+
+            // 綁定點擊事件，讓玩家可以檢視物品
+            slot.onclick = () => openInspectModal(itemId, imgUrl, itemName);
 
             if (collectedItemsCount === MAX_ITEMS) {
                 setTimeout(triggerFinalQuiz, 1500);
             }
         }
 
+        function openInspectModal(itemId, imgUrl, itemName) {
+            if (itemId === 'logbook') {
+                // 如果點擊的是登記簿，直接開啟原本的登記簿 modal
+                openLogBook();
+                return;
+            }
+            
+            // 其他物品則開啟通用的檢視視窗
+            document.getElementById('inspect-title').innerText = itemName;
+            document.getElementById('inspect-image').src = imgUrl;
+            document.getElementById('modal-inspect-item').classList.remove('hidden');
+        }
+
+        function closeInspectModal() {
+            document.getElementById('modal-inspect-item').classList.add('hidden');
+        }
+
         const dummyItems = [
-            { id: 'logbook', icon: '📖', name: 'Visitor Log' },
-            { id: 'fruit', icon: '🧺', name: 'Fruit Basket' },
-            { id: 'necklace', icon: '📿', name: 'Necklace' },
-            { id: 'police_report', icon: '📄', name: 'Police Report' },
-            { id: 'bouquet', icon: '💐', name: 'Flower Bouquet' }
+            { id: 'logbook', img: 'https://assets.codepen.io/17688442/Visitor+log+book-png.png', name: 'Visitor Log' },
+            { id: 'fruit', img: 'https://assets.codepen.io/17688442/fruit.png', name: 'Fruit Basket' },
+            { id: 'necklace', img: 'https://assets.codepen.io/17688442/necklace.png', name: 'Necklace' },
+            { id: 'police_report', img: 'https://assets.codepen.io/17688442/doctor+doc.png', name: 'Police Report' },
+            { id: 'bouquet', img: 'https://assets.codepen.io/17688442/blur+flower.png', name: 'Flower Bouquet' }
         ];
         function testCollect() {
             if (collectedItemsCount < MAX_ITEMS) {
                 const item = dummyItems[collectedItemsCount];
-                collectEvidence(item.id, item.icon, item.name);
+                collectEvidence(item.id, item.img, item.name);
             }
         }
 
@@ -479,25 +522,122 @@
             document.getElementById('speech-speaker').innerText = "Nurse Sarah :";
             document.getElementById('speech-speaker').className = "text-blue-300 font-bold text-lg mb-1";
             hideOptions();
-            typeWriterStart("If you need anything else, I'm right here at the desk.", () => {
-                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+            
+            if (hasReturnedFromDoctor) {
+                typeWriterStart("Hello. How can I help you?", () => {
+                    showOptions([
+                        { text: "Grandma: Can I take a look at the visitor log book?", action: () => nurseTurn1Resp() }
+                    ]);
+                });
+            } else {
+                typeWriterStart("If you need anything else, I'm right here at the desk.", () => {
+                    showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+                });
+            }
+        }
+
+        function nurseTurn1Resp() {
+            hideOptions();
+            typeWriterStart("Sure, go ahead.", () => {
+                showOptions([
+                    { text: "Grandma: Thank you. Are there any other visitors here tonight?", action: () => nurseTurn2Resp() }
+                ]);
+            });
+        }
+
+        function nurseTurn2Resp() {
+            hideOptions();
+            typeWriterStart("No, not at all. Everyone entering or leaving must register here.", () => {
+                showOptions([
+                    { text: "Grandma: Is it always this quiet at night?", action: () => nurseTurn3Resp('A') },
+                    { text: "Grandma: Are you sure no one else came by?", action: () => nurseTurn3Resp('B') }
+                ]);
+            });
+        }
+
+        function nurseTurn3Resp(choice) {
+            hideOptions();
+            let msg = choice === 'A'
+                ? "Yes, it gets very lonely here after midnight. Most people are already asleep."
+                : "Positive. I have been at this desk all night, and nobody else has passed through.";
+            
+            typeWriterStart(msg, () => {
+                showOptions([
+                    { text: "Grandma: Alright. I will just check the log book myself then.", action: () => nurseTurn4Resp() }
+                ]);
+            });
+        }
+
+        function nurseTurn4Resp() {
+            hideOptions();
+            typeWriterStart("Please do. The book is right there. Let me know if you need anything else.", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); document.getElementById('nurse-speech').classList.add('hidden'); }}]);
             });
         }
 
         function showDadMessage() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            document.getElementById('speech-avatar').innerText = "👵";
-            document.getElementById('speech-speaker').innerText = "Grandma (Thinking) :";
-            document.getElementById('speech-speaker').className = "text-purple-400 font-bold text-lg mb-1";
+            document.getElementById('speech-avatar').innerText = "👨";
+            document.getElementById('speech-speaker').innerText = "Arthur (Dad) :";
+            document.getElementById('speech-speaker').className = "text-indigo-400 font-bold text-lg mb-1";
             hideOptions();
-            typeWriterStart("Oh, Evelyn... What happened to you, my dear?", () => {
-                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+            
+            typeWriterStart("(Arthur is sitting by the bed, looking utterly exhausted.)", () => {
+                showOptions([
+                    { text: "Grandma: Thank goodness the surgery is finally over... Is she still asleep from the medicine?", action: () => dadTurn1Resp('A') },
+                    { text: "Grandma: Seeing her lying there covered in all these injuries breaks my heart... How on earth did this happen?", action: () => dadTurn1Resp('B') }
+                ]);
+            });
+        }
+
+        function dadTurn1Resp(choice) {
+            hideOptions();
+            let msg = choice === 'A' 
+                ? "The doctor said the surgery was a success, and now we just have to wait for her to wake up... But seeing her like this, it truly cuts me to the heart." 
+                : "It's all my fault... I'm so sorry, Mom, for putting you through this. Looking at her lying there, I wish it were me instead.";
+            
+            typeWriterStart(msg, () => {
+                showOptions([
+                    { text: "Grandma: I just don't understand. Why would Evelyn drive out all by herself so late at night?", action: () => dadTurn2Resp() },
+                    { text: "Grandma: The police mentioned that the accident site wasn't even on her usual route home. Where could she possibly be going at that hour?", action: () => dadTurn2Resp() }
+                ]);
+            });
+        }
+
+        function dadTurn2Resp() {
+            hideOptions();
+            typeWriterStart("I... I really don't know. I was working late at the office and completely lost track of time. By the time I got the call, the crash had already happened. I regret it so much. If only I hadn't been working overtime... if only I had stayed home to keep her company, maybe none of this would have happened.", () => {
+                showOptions([
+                    { text: "Grandma: You were just working hard for this family. It's normal to work overtime sometimes, don't blame yourself too much.", action: () => dadTurn3Resp('A') },
+                    { text: "Grandma: Has something been going on between the two of you lately? She seemed so anxious recently...", action: () => dadTurn3Resp('B') }
+                ]);
+            });
+        }
+
+        function dadTurn3Resp(choice) {
+            hideOptions();
+            let msg = choice === 'A'
+                ? "But Mom... it's exactly because I'm always working overtime, spending all my time on work, that I neglected her feelings... I really haven't been a good husband."
+                : "No, not at all. We’ve been great. Maybe... maybe I've just been working too much overtime lately, and she was overthinking things alone at home. She probably just went for a drive to clear her head.";
+            
+            typeWriterStart(msg, () => {
+                showOptions([
+                    { text: "Grandma: I'll watch over her. You’ve been working all day, why don't you go lie down on the bench over there?", action: () => dadTurn4Resp() },
+                    { text: "Grandma: Since the surgery went well, let's not disturb her. Let's just sit down together and wait for her to open her eyes.", action: () => dadTurn4Resp() }
+                ]);
+            });
+        }
+
+        function dadTurn4Resp() {
+            hideOptions();
+            typeWriterStart("Thank you, Mom. But I want to stay right here with her. No matter what, as long as she's safe and sound right here... she can't go anywhere else now. Please, sit down and rest with me.", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); document.getElementById('nurse-speech').classList.add('hidden'); }}]);
             });
         }
 
         function showFruitMessage() {
-            collectEvidence('fruit', '🧺', 'Fruit Basket');
+            collectEvidence('fruit', 'https://assets.codepen.io/17688442/fruit.png', 'Fruit Basket');
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
             document.getElementById('speech-avatar').innerText = "🧺";
@@ -522,7 +662,7 @@
         }
 
         function showNecklaceMessage() {
-            collectEvidence('necklace', '📿', 'Necklace');
+            collectEvidence('necklace', 'https://assets.codepen.io/17688442/necklace.png', 'Necklace');
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
             document.getElementById('speech-avatar').innerText = "📿";
@@ -535,7 +675,7 @@
         }
 
         function showFlowerMessage() {
-            collectEvidence('bouquet', '💐', 'Flower Bouquet');
+            collectEvidence('bouquet', 'https://assets.codepen.io/17688442/blur+flower.png', 'Flower Bouquet');
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
             document.getElementById('speech-avatar').innerText = "💐";
@@ -554,8 +694,57 @@
             document.getElementById('speech-speaker').innerText = "Toby :";
             document.getElementById('speech-speaker').className = "text-orange-400 font-bold text-lg mb-1";
             hideOptions();
-            typeWriterStart("Grandma! You're here... Mom looks so hurt, I'm scared.", () => {
-                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+            
+            typeWriterStart("(Toby is sitting quietly in the corner, staring at the floor.)", () => {
+                showOptions([
+                    { text: "Grandma: Are you okay? You look so pale. How are you holding up?", action: () => sonTurn1Resp('A') },
+                    { text: "Grandma: I was looking for you. Have you been sitting here all by yourself?", action: () => sonTurn1Resp('B') }
+                ]);
+            });
+        }
+
+        function sonTurn1Resp(choice) {
+            hideOptions();
+            let msg = choice === 'A' 
+                ? "I'm fine, Grandma... Just tired." 
+                : "Yeah... I needed some quiet. It’s too heavy in here.";
+            
+            typeWriterStart(msg, () => {
+                showOptions([
+                    { text: "Grandma: I know this is scary for you. Your mother will wake up soon, don't worry.", action: () => sonTurn2Resp('A') },
+                    { text: "Grandma: You can talk to me. Are you worried about what happened to your mom tonight?", action: () => sonTurn2Resp('B') }
+                ]);
+            });
+        }
+
+        function sonTurn2Resp(choice) {
+            hideOptions();
+            typeWriterStart("I don't know, Grandma. Maybe... maybe she shouldn't wake up.", () => {
+                showOptions([
+                    { text: "Grandma: Why would you say that? That's your mother!", action: () => sonTurn3Resp('A') },
+                    { text: "Grandma: What do you mean? Did something happen before she left?", action: () => sonTurn3Resp('B') }
+                ]);
+            });
+        }
+
+        function sonTurn3Resp(choice) {
+            hideOptions();
+            let msg = choice === 'A'
+                ? "Nothing. I just mean... she looked so unhappy lately. It was always so loud at home."
+                : "We... we don't talk anymore. Dad was always staying late at work, and Mom... Mom was always packed.";
+            
+            typeWriterStart(msg, () => {
+                showOptions([
+                    { text: "Grandma: No matter what, you still have me. We will get through this.", action: () => sonTurn4Resp() },
+                    { text: "Grandma: If there is something I should know, you must tell me.", action: () => sonTurn4Resp() }
+                ]);
+            });
+        }
+
+        function sonTurn4Resp() {
+            hideOptions();
+            typeWriterStart("Thanks, Grandma. But it doesn't matter now... Nothing matters anymore...", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); document.getElementById('nurse-speech').classList.add('hidden'); }}]);
             });
         }
 
@@ -688,7 +877,7 @@
                 });
             } else {
                 // 摸黑成功偷取
-                collectEvidence('police_report', '📄', 'Police Report');
+                collectEvidence('police_report', 'https://assets.codepen.io/17688442/doctor+doc.png', 'Police Report');
                 document.getElementById('speech-avatar').innerText = "📄";
                 document.getElementById('speech-speaker').innerText = "Secret Document :";
                 document.getElementById('speech-speaker').className = "text-red-400 font-bold text-lg mb-1";
@@ -919,7 +1108,7 @@
                     }
                     
                     if (!collectedIds.has('logbook')) {
-                        collectEvidence('logbook', '📖', 'Visitor Log');
+                        collectEvidence('logbook', 'https://assets.codepen.io/17688442/Visitor+log+book-png.png', 'Visitor Log');
                         
                         const speechBox = document.getElementById('nurse-speech');
                         speechBox.classList.remove('hidden');
