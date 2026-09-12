@@ -8,7 +8,7 @@
     <style>
         .aspect-ratio-box { aspect-ratio: 16 / 9; }
         
-        /* 統一的發光與微微放大動畫 (給小物件使用) */
+        /* 動畫特效 */
         @keyframes pulse-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4)); }
             50% { transform: scale(1.03); filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)); }
@@ -17,7 +17,6 @@
         .interactive-item { position: absolute; cursor: pointer; transition: all 0.3s ease; }
         .interactive-item:hover { animation: pulse-hover 1.2s infinite ease-in-out; z-index: 10; }
         
-        /* 減弱一半的發光與放大動畫 (專門給大面積人物使用) */
         @keyframes mild-pulse-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.2)); }
             50% { transform: scale(1.015); filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)); }
@@ -35,7 +34,6 @@
             50% { border-color: transparent; }
         }
         
-        /* 針對行動裝置優化：字體大於等於 16px 防止 iOS 自動縮放畫面 */
         .blinking-input {
             position: absolute;
             border: 2px solid red;
@@ -55,7 +53,6 @@
         }
         .arrow-glow { animation: glow-pulse 2s infinite ease-in-out; }
         
-        /* 專屬項鍊與花束的輕微呼吸動畫 */
         @keyframes breathing-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2)); }
             50% { transform: scale(1.05); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5)); }
@@ -64,7 +61,6 @@
         .breathing-item { position: absolute; cursor: pointer; transition: all 0.6s ease; }
         .breathing-item:hover { animation: breathing-hover 2.5s infinite ease-in-out; z-index: 10; }
 
-        /* 更微弱的呼吸動畫 (專門給大面積窗簾使用) */
         @keyframes subtle-breathing-hover {
             0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
             50% { transform: scale(1.01); filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7)); }
@@ -73,284 +69,353 @@
         .subtle-breathing-item { position: absolute; cursor: pointer; transition: all 0.6s ease; }
         .subtle-breathing-item:hover { animation: subtle-breathing-hover 3s infinite ease-in-out; z-index: 10; }
 
-        /* 跨瀏覽器相容性：為圖片左側與底部加入羽化漸層，使其融入背景 */
         .fade-left-bottom {
             -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%), linear-gradient(to top, transparent 0%, black 12%);
             -webkit-mask-composite: source-in;
             mask-image: linear-gradient(to right, transparent 0%, black 12%), linear-gradient(to top, transparent 0%, black 12%);
             mask-composite: intersect;
         }
+
+        /* 收集欄插槽動畫 */
+        @keyframes slot-unlock {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); box-shadow: 0 0 15px #60a5fa; }
+            100% { transform: scale(1); box-shadow: 0 0 5px #60a5fa; }
+        }
+        .slot-filled { animation: slot-unlock 0.5s ease-out forwards; }
     </style>
 </head>
-<body class="bg-gray-900 min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 select-none overflow-x-hidden">
+<body class="bg-gray-900 min-h-screen p-2 sm:p-4 select-none overflow-x-hidden flex flex-col items-center justify-center">
 
-    <!-- 背景音樂播放器 (自動播放 & 循環) -->
+    <!-- 背景音樂播放器 -->
     <audio id="bg-music" loop preload="auto">
         <source src="Walen - Conspiracy Detective (freetouse.com).mp3" type="audio/mpeg">
     </audio>
 
-    <div id="game-container" class="relative w-full max-w-5xl aspect-ratio-box bg-black shadow-2xl rounded-xl overflow-hidden border-2 sm:border-4 border-gray-700">
+    <!-- 全局佈局容器 (左邊遊戲主體 + 右邊收集欄) -->
+    <div class="flex flex-col lg:flex-row w-full max-w-[1300px] items-center lg:items-start justify-center gap-4 sm:gap-6">
         
-        <!-- 場景 0：開始畫面 -->
-        <div id="scene-start" class="active-scene bg-gray-800 flex flex-col items-center justify-center text-white z-50 p-4">
-            <h1 class="text-3xl sm:text-5xl font-bold mb-4 tracking-widest text-red-400 text-center">The Price of Lies</h1>
-            <h2 class="text-lg sm:text-2xl mb-12 text-gray-300 text-center">Chapter 2: Accident and Truth</h2>
-            <button onclick="startGame()" class="px-6 py-2.5 sm:px-8 sm:py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full transition transform scale-105 hover:scale-110 shadow-lg active:scale-95">Start Game</button>
-        </div>
-
-        <!-- 場景 1：警察來電 -->
-        <div id="scene-phone" class="hidden-scene bg-gray-900 flex flex-col items-center justify-center z-40 relative p-4">
-            <div class="z-10 text-center max-w-xl">
-                <div class="text-5xl sm:text-6xl mb-6">📱</div>
-                <div id="phone-dialogue" class="text-lg sm:text-2xl text-white font-semibold mb-8 px-4 h-24 flex items-center justify-center"></div>
-                <button id="btn-hospital" onclick="goToHospital()" class="hidden px-6 py-2.5 sm:px-8 sm:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg active:scale-95">Rush to Hospital Immediately</button>
-            </div>
-        </div>
-
-        <!-- 場景 2：醫院登記處 -->
-        <div id="scene-hospital" class="hidden-scene z-30 bg-black">
-            <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
+        <!-- =================== 左側：遊戲主畫面與對話框 =================== -->
+        <div class="flex-1 w-full max-w-5xl flex flex-col items-center">
             
-            <!-- 護士去背疊加圖層 -->
-            <img src="https://assets.codepen.io/17688442/1a.png" 
-                 id="item-interactive-nurse"
-                 class="mild-interactive-item hidden"
-                 style="left: 22.3%; top: 0.855%; width: 54.5%; z-index: 25; transform-origin: center center;"
-                 alt="Interactive Nurse"
-                 title="與護士交談"
-                 onclick="startNurseDialogue()">
-
-            <!-- 登記簿 -->
-            <img src="https://assets.codepen.io/17688442/Visitor+log+book-png.png" 
-                 id="item-logbook"
-                 class="interactive-item" 
-                 style="left: 45%; top: 70%; width: 21%; z-index: 30; padding: 10px; transform-origin: center center;"
-                 alt="Visitor Log Book"
-                 title="Click to examine"
-                 onclick="openLogBook()"
-                 onerror="this.src='https://placehold.co/300x200/34495e/ecf0f1?text=Log+Book'">
-
-            <!-- 返回按鈕 (極高優先級 z-50 防止被遮擋) -->
-            <button id="btn-return-doctor" class="hidden absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
-                    onclick="goToDoctorFromHospital()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-        </div>
-
-        <!-- 彈出視窗：顯示登記簿圖片 -->
-        <div id="modal-logbook" class="hidden absolute inset-0 bg-black bg-opacity-95 z-50 flex flex-col items-center justify-center p-2 sm:p-4">
-            <div class="w-full max-w-4xl h-[75%] sm:h-5/6 relative flex justify-center">
-                <img src="https://assets.codepen.io/17688442/visitor+book+%E5%86%85%E9%A0%81%E8%A8%AD%E8%A8%88.jpeg" alt="Visitor Log Details" class="h-full w-auto object-contain border-2 sm:border-4 border-white relative">
+            <div id="game-container" class="relative w-full aspect-ratio-box bg-black shadow-2xl rounded-xl overflow-hidden border-2 sm:border-4 border-gray-700">
                 
-                <!-- 輸入框 (位置精確定位且保留觸控適當尺寸) -->
-                <div class="absolute inset-0 pointer-events-none" style="max-width: 100%; height: 100%;">
-                    <input type="text" id="input-h42" class="blinking-input pointer-events-auto" style="top: 76.38%; left: 34.46%; width: 6.5%; height: 7.5%;" autocomplete="off" autocapitalize="off" spellcheck="false">
-                    <input type="text" id="input-ruth" class="blinking-input pointer-events-auto" style="top: 76.05%; left: 61.75%; width: 9%; height: 7.5%;" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <!-- 場景 0：開始畫面 -->
+                <div id="scene-start" class="active-scene bg-gray-800 flex flex-col items-center justify-center text-white z-50 p-4">
+                    <h1 class="text-3xl sm:text-5xl font-bold mb-4 tracking-widest text-red-400 text-center">The Price of Lies</h1>
+                    <h2 class="text-lg sm:text-2xl mb-12 text-gray-300 text-center">Chapter 2: Accident and Truth</h2>
+                    <button onclick="startGame()" class="px-6 py-2.5 sm:px-8 sm:py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full transition transform scale-105 hover:scale-110 shadow-lg active:scale-95">Start Game</button>
+                </div>
+
+                <!-- 場景 1：警察來電 -->
+                <div id="scene-phone" class="hidden-scene bg-gray-900 flex flex-col items-center justify-center z-40 relative p-4">
+                    <div class="z-10 text-center max-w-xl">
+                        <div class="text-5xl sm:text-6xl mb-6">📱</div>
+                        <div id="phone-dialogue" class="text-lg sm:text-2xl text-white font-semibold mb-8 px-4 h-24 flex items-center justify-center"></div>
+                        <button id="btn-hospital" onclick="goToHospital()" class="hidden px-6 py-2.5 sm:px-8 sm:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg active:scale-95">Rush to Hospital Immediately</button>
+                    </div>
+                </div>
+
+                <!-- 場景 2：醫院登記處 -->
+                <div id="scene-hospital" class="hidden-scene z-30 bg-black">
+                    <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
+                    
+                    <img src="https://assets.codepen.io/17688442/1a.png" 
+                         id="item-interactive-nurse"
+                         class="mild-interactive-item hidden"
+                         style="left: 22.3%; top: 0.855%; width: 54.5%; z-index: 25; transform-origin: center center;"
+                         alt="Interactive Nurse"
+                         onclick="startNurseDialogue()">
+
+                    <img src="https://assets.codepen.io/17688442/Visitor+log+book-png.png" 
+                         id="item-logbook"
+                         class="interactive-item" 
+                         style="left: 45%; top: 70%; width: 21%; z-index: 30; padding: 10px; transform-origin: center center;"
+                         alt="Visitor Log Book"
+                         onclick="openLogBook()">
+
+                    <button id="btn-return-doctor" class="hidden absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
+                            onclick="goToDoctorFromHospital()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 彈出視窗：顯示登記簿圖片 -->
+                <div id="modal-logbook" class="hidden absolute inset-0 bg-black bg-opacity-95 z-50 flex flex-col items-center justify-center p-2 sm:p-4">
+                    <div class="w-full max-w-4xl h-[75%] sm:h-5/6 relative flex justify-center">
+                        <img src="https://assets.codepen.io/17688442/visitor+book+%E5%86%85%E9%A0%81%E8%A8%AD%E8%A8%88.jpeg" alt="Visitor Log Details" class="h-full w-auto object-contain border-2 sm:border-4 border-white relative">
+                        
+                        <div class="absolute inset-0 pointer-events-none" style="max-width: 100%; height: 100%;">
+                            <input type="text" id="input-h42" class="blinking-input pointer-events-auto" style="top: 76.38%; left: 34.46%; width: 6.5%; height: 7.5%;" autocomplete="off" autocapitalize="off" spellcheck="false">
+                            <input type="text" id="input-ruth" class="blinking-input pointer-events-auto" style="top: 76.05%; left: 61.75%; width: 9%; height: 7.5%;" autocomplete="off" autocapitalize="off" spellcheck="false">
+                        </div>
+                        
+                        <button onclick="closeLogBook()" class="absolute -top-10 right-2 text-white font-bold text-3xl sm:text-4xl hover:text-red-400 active:scale-90">&times;</button>
+                    </div>
+                    
+                    <div class="mt-4 z-50 flex flex-col sm:flex-row gap-3 sm:gap-6 justify-center w-full px-4 max-w-2xl">
+                        <button onclick="recallPhoneConversation()" class="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg transition shadow-lg text-sm sm:text-xl border border-white/50 active:scale-95">
+                            Recall Police Conversation
+                        </button>
+                        <button id="btn-submit-logbook" onclick="checkAnswers()" class="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg text-sm sm:text-xl border border-white/50 active:scale-95">
+                            Hand in to nurse
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 場景 3：病房內 -->
+                <div id="scene-ward" class="hidden-scene z-30 bg-black">
+                    <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover">
+
+                    <img src="https://assets.codepen.io/17688442/dad+only.png" 
+                         id="item-dad" class="mild-interactive-item"
+                         style="left: 24.5%; top: 32.25%; width: 24%; z-index: 40; transform-origin: center center;"
+                         onclick="showDadMessage()">
+
+                    <img src="https://assets.codepen.io/17688442/fruit.png" 
+                         id="item-fruit" class="interactive-item"
+                         style="left: 68.25%; top: 42.75%; width: 14.5%; z-index: 40; transform-origin: center center;"
+                         onclick="showFruitMessage()">
+
+                    <img src="https://assets.codepen.io/17688442/mon+1.png" 
+                         id="item-monitor" class="interactive-item"
+                         style="left: 78%; top: 15.55%; width: 14%; z-index: 40; transform-origin: center center;"
+                         onclick="showMonitorMessage()">
+
+                    <img src="https://assets.codepen.io/17688442/necklace.png" 
+                         id="item-necklace" class="breathing-item"
+                         style="left: 60.75%; top: 46.25%; width: 6.25%; z-index: 45; transform-origin: center center;"
+                         onclick="showNecklaceMessage()">
+
+                    <button class="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
+                            onclick="goToSon()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    
+                    <button class="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
+                            onclick="goToDoctor()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 場景 5：兒子角落 -->
+                <div id="scene-son" class="hidden-scene z-30 bg-black">
+                    <img src="https://assets.codepen.io/17688442/son+scene.jpeg" alt="Toby in Hospital Hallway Corner" class="w-full h-full object-cover">
+                    
+                    <img src="https://assets.codepen.io/17688442/open+curtain.jpeg" 
+                         id="item-open-curtain" class="absolute opacity-0 pointer-events-none transition-opacity duration-1000 fade-left-bottom"
+                         style="left: 33%; top: 0.01%; width: 67.15%; height: auto; z-index: 44;">
+
+                    <img src="https://assets.codepen.io/17688442/blur+flower.png" 
+                         id="item-flower-bouquet" class="breathing-item opacity-0 pointer-events-none transition-opacity duration-1000"
+                         style="left: 42%; top: 38%; width: 8%; z-index: 46; transform-origin: center center;"
+                         onclick="showFlowerMessage()">
+
+                    <img src="https://assets.codepen.io/17688442/son+only.png" 
+                         id="item-son" class="mild-interactive-item" 
+                         style="left: 6.75%; top: 38.5%; width: 25%; height: auto; z-index: 40; transform-origin: center center;"
+                         onclick="startSonDialogue()">
+
+                    <img src="https://assets.codepen.io/17688442/curtain+button.png" 
+                         id="item-curtain" class="subtle-breathing-item"
+                         style="left: 34%; top: 0%; width: 24.5%; height: auto; z-index: 45; transform-origin: left center;"
+                         onclick="openCurtain()">
+
+                    <button class="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
+                            onclick="backToWardFromSon()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 場景 4：醫生房間 -->
+                <div id="scene-doctor" class="hidden-scene z-30 bg-black">
+                    <div id="room-darkness" class="absolute inset-0 bg-black z-[48] opacity-0 pointer-events-none transition-opacity duration-700"></div>
+                    <img src="https://assets.codepen.io/17688442/doctor+whole.jpeg" alt="Doctor Room Background" class="w-full h-full object-cover">
+                    
+                    <img src="https://assets.codepen.io/17688442/doctor+no+doc.png" 
+                         id="item-doctor" class="mild-interactive-item"
+                         style="left: 39.4%; top: 12.3%; width: 31%; z-index: 40; transform-origin: center center;"
+                         onclick="startDoctorDialogue()">
+
+                    <img src="https://assets.codepen.io/17688442/doctor+doc.png" 
+                         id="item-doctor-doc" class="breathing-item"
+                         style="left: 53%; top: 37.3%; width: 17%; z-index: 42; transform-origin: center center;"
+                         onclick="showDoctorDocMessage()">
+
+                    <img src="https://assets.codepen.io/17688442/original.png" 
+                         id="item-lightswitch" class="breathing-item"
+                         style="left: 78%; top: 49%; width: 14%; z-index: 45; transform-origin: center center;"
+                         onclick="toggleLightSwitch()">
+
+                    <img src="https://assets.codepen.io/17688442/door+button.png" 
+                         id="item-doorknob" class="interactive-item"
+                         style="left: 88.3%; top: 57.1%; width: 6.2%; z-index: 46; filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));"
+                         onclick="backToHospitalFromDoctor()">
+
+                    <button class="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
+                            onclick="backToWardFromDoctor()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
                 </div>
                 
-                <!-- 手機版關閉按鈕 -->
-                <button onclick="closeLogBook()" class="absolute -top-10 right-2 text-white font-bold text-3xl sm:text-4xl hover:text-red-400 active:scale-90">&times;</button>
+                <!-- 全螢幕切換場景過渡遮罩 -->
+                <div id="fade-overlay" class="absolute inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
+            </div>
+
+            <!-- 對話框區域 -->
+            <div class="w-full h-[240px] sm:h-[280px] mt-3 sm:mt-6 shrink-0">
+                <div id="nurse-speech" class="hidden fade-in w-full h-full p-4 sm:p-6 bg-gray-800 rounded-xl border-2 border-gray-500 shadow-lg flex flex-col space-y-3 sm:space-y-4 overflow-y-auto">
+                    <div class="flex items-start space-x-3 sm:space-x-4">
+                        <div id="speech-avatar" class="w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-gray-400 bg-gray-700 flex-shrink-0 flex items-center justify-center text-xl sm:text-2xl">👩‍⚕️</div>
+                        <div class="flex-1">
+                            <p id="speech-speaker" class="text-blue-300 font-bold text-base sm:text-lg mb-0.5 sm:mb-1">Nurse Sarah :</p>
+                            <p id="nurse-dialogue-text" class="text-base sm:text-xl text-gray-100 font-semibold min-h-[24px] sm:min-h-[30px] leading-relaxed"></p>
+                            <div id="dialogue-options" class="hidden mt-3 sm:mt-4 flex flex-col space-y-2 sm:space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="mt-4 z-50 flex justify-center w-full">
-                <button id="btn-submit-logbook" onclick="checkAnswers()" class="px-6 py-2 sm:px-8 sm:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg text-sm sm:text-xl border border-white/50 active:scale-95">
-                    Hand in to nurse
-                </button>
+        </div>
+
+        <!-- =================== 右側：物品收集欄 =================== -->
+        <div class="w-full lg:w-[200px] bg-gray-800 border-2 border-gray-600 rounded-xl p-4 flex flex-row lg:flex-col overflow-x-auto lg:overflow-y-visible items-center gap-4 shrink-0 shadow-xl">
+            <h3 class="text-white font-bold text-base lg:text-lg text-center tracking-wider shrink-0">
+                EVIDENCE<br>
+                <span id="evidence-count" class="text-blue-400 text-sm">(0/5)</span>
+            </h3>
+            
+            <!-- 插槽容器 -->
+            <div id="inventory-slots" class="flex flex-row lg:flex-col gap-3 lg:gap-4 w-full justify-center items-center shrink-0">
+                <!-- 5 個預設空插槽 -->
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-1">
+                    <span class="text-xl font-bold">?</span>
+                </div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-2">
+                    <span class="text-xl font-bold">?</span>
+                </div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-3">
+                    <span class="text-xl font-bold">?</span>
+                </div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-4">
+                    <span class="text-xl font-bold">?</span>
+                </div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-5">
+                    <span class="text-xl font-bold">?</span>
+                </div>
             </div>
-        </div>
 
-        <!-- 場景 3：病房內 -->
-        <div id="scene-ward" class="hidden-scene z-30 bg-black">
-            <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover">
-
-            <!-- 爸爸人物圖層 -->
-            <img src="https://assets.codepen.io/17688442/dad+only.png" 
-                 id="item-dad"
-                 class="mild-interactive-item"
-                 style="left: 24.5%; top: 32.25%; width: 24%; z-index: 40; transform-origin: center center;"
-                 alt="Interactive Dad"
-                 title="點擊與爸爸對話"
-                 onclick="showDadMessage()">
-
-            <!-- 水果籃 -->
-            <img src="https://assets.codepen.io/17688442/fruit.png" 
-                 id="item-fruit"
-                 class="interactive-item"
-                 style="left: 68.25%; top: 42.75%; width: 14.5%; z-index: 40; transform-origin: center center;"
-                 alt="Fruit Basket"
-                 title="Click to examine"
-                 onclick="showFruitMessage()">
-
-            <!-- 心電圖顯示器 -->
-            <img src="https://assets.codepen.io/17688442/mon+1.png" 
-                 id="item-monitor"
-                 class="interactive-item"
-                 style="left: 78%; top: 15.55%; width: 14%; z-index: 40; transform-origin: center center;"
-                 alt="Heart Monitor"
-                 title="Check Monitor"
-                 onclick="showMonitorMessage()">
-
-            <!-- 項鍊 -->
-            <img src="https://assets.codepen.io/17688442/necklace.png" 
-                 id="item-necklace"
-                 class="breathing-item"
-                 style="left: 60.75%; top: 46.25%; width: 6.25%; z-index: 45; transform-origin: center center;"
-                 alt="Necklace"
-                 title="Examine Necklace"
-                 onclick="showNecklaceMessage()">
-
-            <!-- 左邊箭頭：前往兒子角落 -->
-            <button class="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
-                    onclick="goToSon()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            
-            <!-- 右邊箭頭：前往醫生房間 -->
-            <button class="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
-                    onclick="goToDoctor()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
-                </svg>
+            <!-- 開發測試按鈕 -->
+            <button onclick="testCollect()" class="mt-auto px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs sm:text-sm font-bold rounded-md shrink-0 border border-gray-500 active:scale-95 transition-transform">
+                Test Collect
             </button>
         </div>
 
-        <!-- 場景 5：兒子角落 (Son Scene) -->
-        <div id="scene-son" class="hidden-scene z-30 bg-black">
-            <img src="https://assets.codepen.io/17688442/son+scene.jpeg" alt="Toby in Hospital Hallway Corner" class="w-full h-full object-cover">
-            
-            <!-- 打開後的窗簾 (加入 fade-left-bottom 類別以羽化邊緣) -->
-            <img src="https://assets.codepen.io/17688442/open+curtain.jpeg" 
-                 id="item-open-curtain"
-                 class="absolute opacity-0 pointer-events-none transition-opacity duration-1000 fade-left-bottom"
-                 style="left: 33%; top: 0.01%; width: 67.15%; height: auto; z-index: 44;"
-                 alt="Open Curtain">
-
-            <!-- 窗戶前的花束 (隨窗戶打開時顯示，帶有呼吸效果) -->
-            <img src="https://assets.codepen.io/17688442/blur+flower.png" 
-                 id="item-flower-bouquet"
-                 class="breathing-item opacity-0 pointer-events-none transition-opacity duration-1000"
-                 style="left: 42%; top: 38%; width: 8%; z-index: 46; transform-origin: center center;"
-                 alt="Flower Bouquet"
-                 title="Examine Flowers"
-                 onclick="showFlowerMessage()">
-
-            <!-- 兒子 Toby 人物圖層 -->
-            <img src="https://assets.codepen.io/17688442/son+only.png" 
-                 id="item-son" 
-                 class="mild-interactive-item" 
-                 style="left: 6.75%; top: 38.5%; width: 25%; height: auto; z-index: 40; transform-origin: center center;"
-                 alt="Interactive Toby"
-                 title="點擊與 Toby 對話"
-                 onclick="startSonDialogue()">
-
-            <!-- 左邊窗簾 -->
-            <img src="https://assets.codepen.io/17688442/curtain+button.png" 
-                 id="item-curtain"
-                 class="subtle-breathing-item"
-                 style="left: 34%; top: 0%; width: 24.5%; height: auto; z-index: 45; transform-origin: left center;"
-                 alt="Hospital Curtain"
-                 title="Examine Curtain"
-                 onclick="openCurtain()">
-
-            <!-- 右邊返回按鈕：往右箭頭，回到爸爸病房 (確保 z-50 頂層渲染且不消失) -->
-            <button class="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
-                    onclick="backToWardFromSon()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
-        </div>
-
-        <!-- 場景 4：醫生房間 -->
-        <div id="scene-doctor" class="hidden-scene z-30 bg-black">
-            <img src="https://assets.codepen.io/17688442/doctor+whole.jpeg" alt="Doctor Room Background" class="w-full h-full object-cover">
-            
-            <!-- 醫生人物圖層 (更新為 doctor no doc 檔案) -->
-            <img src="https://assets.codepen.io/17688442/doctor+no+doc.png" 
-                 id="item-doctor"
-                 class="mild-interactive-item"
-                 style="left: 39.4%; top: 12.3%; width: 31%; z-index: 40; transform-origin: center center;"
-                 alt="Interactive Doctor"
-                 title="點擊與醫生對話"
-                 onclick="startDoctorDialogue()">
-
-            <!-- 病歷文件疊加圖層 (新增：doctor doc.png，放置在手部空隙位置，帶有互動呼吸效果) -->
-            <img src="https://assets.codepen.io/17688442/doctor+doc.png" 
-                 id="item-doctor-doc"
-                 class="breathing-item"
-                 style="left: 53%; top: 37.3%; width: 17%; z-index: 42; transform-origin: center center;"
-                 alt="Medical Document"
-                 title="Examine Diagnosis Report"
-                 onclick="showDoctorDocMessage()">
-
-            <!-- 燈開關 -->
-            <img src="https://assets.codepen.io/17688442/original.png" 
-                 id="item-lightswitch"
-                 class="breathing-item"
-                 style="left: 78%; top: 49%; width: 14%; z-index: 45; transform-origin: center center;"
-                 alt="Light Switch"
-                 title="Examine Light Switch"
-                 onclick="showLightSwitchMessage()">
-
-            <!-- 門把手 -->
-            <img src="https://assets.codepen.io/17688442/door+button.png" 
-                 id="item-doorknob"
-                 class="interactive-item"
-                 style="left: 88.3%; top: 57.1%; width: 6.2%; z-index: 50; filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));"
-                 alt="Door Knob"
-                 title="點擊離開"
-                 onclick="backToHospitalFromDoctor()">
-
-            <!-- 左側返回箭頭 -->
-            <button class="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
-                    onclick="backToWardFromDoctor()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-        </div>
-        
-        <!-- 全螢幕切換場景過渡遮罩 -->
-        <div id="fade-overlay" class="absolute inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
     </div>
 
-    <!-- 建立固定高度的對話框佔位區 (Placeholder)，徹底解決畫面切換與對話出現時的上下跳動問題 -->
-    <div class="w-full max-w-5xl h-[240px] sm:h-[280px] mt-3 sm:mt-6 shrink-0">
-        <!-- 整合式動態故事對話對話框 (優化手機字體與排版) -->
-        <div id="nurse-speech" class="hidden fade-in w-full h-full p-4 sm:p-6 bg-gray-800 rounded-xl border-2 border-gray-500 shadow-lg flex flex-col space-y-3 sm:space-y-4 overflow-y-auto">
-            <div class="flex items-start space-x-3 sm:space-x-4">
-                <div id="speech-avatar" class="w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-gray-400 bg-gray-700 flex-shrink-0 flex items-center justify-center text-xl sm:text-2xl">👩‍⚕️</div>
-                <div class="flex-1">
-                    <p id="speech-speaker" class="text-blue-300 font-bold text-base sm:text-lg mb-0.5 sm:mb-1">Nurse Sarah :</p>
-                    <p id="nurse-dialogue-text" class="text-base sm:text-xl text-gray-100 font-semibold min-h-[24px] sm:min-h-[30px] leading-relaxed"></p>
-                    
-                    <!-- 互動選擇按鈕容器 -->
-                    <div id="dialogue-options" class="hidden mt-3 sm:mt-4 flex flex-col space-y-2 sm:space-y-3"></div>
-                </div>
+    <!-- =================== 最終問答彈出視窗 (Quiz Modal) =================== -->
+    <div id="modal-quiz" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-2xl bg-gray-800 border-2 border-blue-500 rounded-xl p-6 sm:p-10 text-center shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+            <div class="text-6xl mb-4">🔍</div>
+            <h2 class="text-2xl sm:text-4xl text-white font-bold mb-4">Truth Revealed</h2>
+            <p class="text-gray-300 text-base sm:text-xl mb-8">You have collected all five key pieces of evidence. It's time to piece together the truth.</p>
+            
+            <div id="quiz-content" class="bg-gray-900 p-4 rounded-lg border border-gray-600 text-left mb-8 min-h-[150px] flex items-center justify-center">
+                <p class="text-gray-400 italic">（問答題目內容即將實裝，請待開發者更新...）</p>
             </div>
+
+            <button onclick="closeQuizModal()" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg text-lg border border-blue-400 active:scale-95">
+                Return to Game
+            </button>
         </div>
     </div>
 
     <script>
+        // ==========================================
+        //         物品收集與 Quiz 系統邏輯
+        // ==========================================
+        let collectedItemsCount = 0;
+        const MAX_ITEMS = 5;
+        
+        // 記錄已經收集過的物品 ID 避免重複收集
+        const collectedIds = new Set();
+
+        // 呼叫此函數來收集物品
+        function collectEvidence(itemId, iconEmoji, itemName) {
+            if (collectedIds.has(itemId) || collectedItemsCount >= MAX_ITEMS) return;
+            
+            collectedIds.add(itemId);
+            collectedItemsCount++;
+            
+            // 更新 UI 數字
+            document.getElementById('evidence-count').innerText = `(${collectedItemsCount}/${MAX_ITEMS})`;
+            
+            // 找出對應的插槽並更新外觀
+            const slot = document.getElementById(`slot-${collectedItemsCount}`);
+            slot.classList.remove('border-dashed', 'border-gray-600', 'text-gray-500');
+            slot.classList.add('border-solid', 'border-blue-400', 'text-white', 'bg-blue-900/30', 'slot-filled');
+            
+            // 更新插槽內容
+            slot.innerHTML = `
+                <div class="text-3xl lg:text-4xl mb-1">${iconEmoji}</div>
+                <div class="text-[10px] lg:text-xs font-bold text-blue-200 text-center leading-tight px-1">${itemName}</div>
+            `;
+
+            // 如果收集滿 5 個，延遲一點時間後觸發 Quiz
+            if (collectedItemsCount === MAX_ITEMS) {
+                setTimeout(triggerFinalQuiz, 1500);
+            }
+        }
+
+        // 測試用的假收集按鈕功能
+        const dummyItems = [
+            { id: 'logbook', icon: '📖', name: 'Visitor Log' },
+            { id: 'fruit', icon: '🧺', name: 'Fruit Basket' },
+            { id: 'necklace', icon: '📿', name: 'Necklace' },
+            { id: 'police_report', icon: '📄', name: 'Police Report' },
+            { id: 'bouquet', icon: '💐', name: 'Flower Bouquet' }
+        ];
+        function testCollect() {
+            if (collectedItemsCount < MAX_ITEMS) {
+                const item = dummyItems[collectedItemsCount];
+                collectEvidence(item.id, item.icon, item.name);
+            }
+        }
+
+        // 觸發最終問答
+        function triggerFinalQuiz() {
+            document.getElementById('modal-quiz').classList.remove('hidden');
+        }
+
+        // 關閉問答視窗
+        function closeQuizModal() {
+            document.getElementById('modal-quiz').classList.add('hidden');
+        }
+
+
+        // ==========================================
+        //         原有的遊戲場景與對話邏輯
+        // ==========================================
         function switchScene(hideId, showId) {
             document.getElementById(hideId).classList.replace('active-scene', 'hidden-scene');
             document.getElementById(showId).classList.replace('hidden-scene', 'active-scene');
         }
         
-        // 玩家點擊 Start Game 時，立即安全解鎖並播放背景音樂，完美支援 iOS/Safari/小米/Samsung
         function startGame() { 
             const bgMusic = document.getElementById('bg-music');
             if (bgMusic) {
                 bgMusic.volume = 0.2;
-                bgMusic.play().then(() => {
-                    console.log("Audio started successfully via click event.");
-                }).catch(error => {
-                    console.log("Audio play was rejected, but registered user interaction:", error);
-                });
+                bgMusic.play().catch(error => console.log("Audio play error:", error));
             }
             switchScene('scene-start', 'scene-phone'); 
             playPhoneEvent(); 
@@ -358,6 +423,8 @@
         
         function playPhoneEvent() {
             const dialogueEl = document.getElementById('phone-dialogue');
+            document.getElementById('btn-hospital').classList.add('hidden');
+            
             const texts = ["Hello, is this Ruth Winter? Mother of Evelyn Anderson?", "This is the Police. Your daughter had a severe car accident.", "Please come to the hospital immediately!"];
             let step = 0;
             function next() {
@@ -371,12 +438,26 @@
             next();
         }
 
+        function recallPhoneConversation() {
+            closeLogBook();
+            document.getElementById('nurse-speech').classList.add('hidden');
+            stopBlinking();
+            
+            const fadeOverlay = document.getElementById('fade-overlay');
+            fadeOverlay.classList.remove('opacity-0');
+            fadeOverlay.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                switchScene('scene-hospital', 'scene-phone');
+                playPhoneEvent();
+                fadeOverlay.classList.remove('opacity-100');
+                fadeOverlay.classList.add('opacity-0');
+            }, 1000);
+        }
+
         function goToHospital() {
-            // 安全冗餘播放 (如果 startGame 失敗，這裡作為第二次安全點擊解鎖音效)
             const bgMusic = document.getElementById('bg-music');
-            if (bgMusic && bgMusic.paused) {
-                bgMusic.play().catch(e => console.log(e));
-            }
+            if (bgMusic && bgMusic.paused) { bgMusic.play().catch(e => console.log(e)); }
 
             switchScene('scene-phone', 'scene-hospital');
             const speechBox = document.getElementById('nurse-speech');
@@ -396,7 +477,9 @@
         let typeIndex = 0;
         let typeTimer;
         let isLogbookLocked = false; 
+        let hasReturnedFromDoctor = false;
         let onTypewriterComplete = null;
+        let isLightOn = true;
 
         function typeWriterStart(text, callback = null) {
             clearTimeout(typeTimer);
@@ -411,431 +494,169 @@
             if (typeIndex < nurseText.length) {
                 document.getElementById('nurse-dialogue-text').innerHTML += nurseText.charAt(typeIndex);
                 typeIndex++;
-                typeTimer = setTimeout(typeWriter, 35); 
-            } else if (onTypewriterComplete) {
-                onTypewriterComplete();
-                onTypewriterComplete = null;
+                typeTimer = setTimeout(typeWriter, 30);
+            } else {
+                if (onTypewriterComplete) {
+                    onTypewriterComplete();
+                    onTypewriterComplete = null;
+                }
             }
         }
 
-        /* 護士對話 */
         function startNurseDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            
             document.getElementById('speech-avatar').innerText = "👩‍⚕️";
             document.getElementById('speech-speaker').innerText = "Nurse Sarah :";
             document.getElementById('speech-speaker').className = "text-blue-300 font-bold text-lg mb-1";
-            
-            hideOptions(); 
-            
-            typeWriterStart("Hello. How can I help you?", () => {
-                showOptions([
-                    { text: "Grandma: Can I take a look at the visitor log book?", action: dialogueTurn1 }
-                ]);
+            hideOptions();
+            typeWriterStart("If you need anything else, I'm right here at the desk.", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
             });
         }
 
-        function dialogueTurn1() {
-            hideOptions();
-            typeWriterStart("Sure, go ahead.", () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: Thank you. Are there any other visitors here tonight?", action: dialogueTurn2 }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function dialogueTurn2() {
-            hideOptions();
-            typeWriterStart("No, not at all. Everyone entering or leaving must register here.", () => {
-                showOptions([
-                    { text: "Grandma: Is it always this quiet at night?", action: () => dialogueTurn3('A') },
-                    { text: "Grandma: Are you sure no one else came by?", action: () => dialogueTurn3('B') }
-                ]);
-            });
-        }
-
-        function dialogueTurn3(choice) {
-            hideOptions();
-            if (choice === 'A') {
-                typeWriterStart("Yes, it gets very lonely here after midnight. Most people are already asleep.", () => {
-                    showOptions([{ text: "Grandma: Alright. I will just check the log book myself then.", action: dialogueTurn4 }]);
-                });
-            } else if (choice === 'B') {
-                typeWriterStart("Positive. I have been at this desk all night, and nobody else has passed through.", () => {
-                    showOptions([{ text: "Grandma: Alright. I will just check the log book myself then.", action: dialogueTurn4 }]);
-                });
-            }
-        }
-
-        function dialogueTurn4() {
-            hideOptions();
-            typeWriterStart("Please do. The book is right there. Let me know if you need anything else.");
-        }
-
-        /* 醫生分支對話 */
-        function startDoctorDialogue() {
-            const speechBox = document.getElementById('nurse-speech');
-            speechBox.classList.remove('hidden');
-            
-            document.getElementById('speech-avatar').innerText = "👨‍⚕️";
-            document.getElementById('speech-speaker').innerText = "Doctor Evans :";
-            document.getElementById('speech-speaker').className = "text-emerald-400 font-bold text-lg mb-1";
-            
-            hideOptions();
-            
-            typeWriterStart("Hello. I need to ask you a question about Evelyn. Does she fall down often? Is she careless?", () => {
-                showOptions([
-                    { text: "Grandma: Why do you ask, Doctor? Is something wrong?", action: () => doctorTurn1('A') },
-                    { text: "Grandma: I am not sure. Did you find something during the surgery?", action: () => doctorTurn1('B') }
-                ]);
-            });
-        }
-
-        function doctorTurn1(choice) {
-            hideOptions();
-            let responseText = "";
-            if (choice === 'A') {
-                responseText = "We found some small bruises on her body. They look older than the car accident.";
-            } else if (choice === 'B') {
-                responseText = "Yes. We noticed some older bruises on her arms. They happened before the crash.";
-            }
-            
-            typeWriterStart(responseText, () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: I don't live with her, so I don't know much about her daily life.", action: () => doctorTurn2('A') },
-                        { text: "Grandma: She did not tell me anything. But we do not live together.", action: () => doctorTurn2('B') }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function doctorTurn2(choice) {
-            hideOptions();
-            typeWriterStart("I see. But the shape of these bruises is strange. They do not look like normal injuries from falling down.", () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: Could it be a family health problem? Her father had a stroke and always lost his balance and fell.", action: () => doctorTurn3('A') },
-                        { text: "Grandma: Did she faint before the crash? Her father had a stroke and often passed out suddenly.", action: () => doctorTurn3('B') }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function doctorTurn3(choice) {
-            hideOptions();
-            let responseText = "";
-            if (choice === 'A') {
-                responseText = "That is possible. But when people lose their balance, they usually hurt their knees or hands. Evelyn's bruises are on her upper arms and shoulders.";
-            } else if (choice === 'B') {
-                responseText = "If she passed out, she would just fall flat on the floor. But these marks look more like pressure marks—like someone grabbed her—not a fall.";
-            }
-            
-            typeWriterStart(responseText, () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: Please, Doctor, check her again very carefully. We need to be sure.", action: () => doctorTurn4('A') },
-                        { text: "Grandma: Please do a full checkup on her. I want to know the truth.", action: () => doctorTurn4('B') }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function doctorTurn4(choice) {
-            hideOptions();
-            typeWriterStart("I will check her again very carefully. But ma'am... if these marks are not from simple falls, it could be a very different story. Let's wait for her to wake up first.", () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Close", action: () => {
-                            hideOptions();
-                            document.getElementById('nurse-speech').classList.add('hidden');
-                        }}
-                    ]);
-                }, 1000);
-            });
-        }
-
-        /* 爸爸分支對話 */
         function showDadMessage() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            
-            document.getElementById('speech-avatar').innerText = "👨";
-            document.getElementById('speech-speaker').innerText = "Dad :";
-            document.getElementById('speech-speaker').className = "text-amber-400 font-bold text-lg mb-1";
-            
+            document.getElementById('speech-avatar').innerText = "👵";
+            document.getElementById('speech-speaker').innerText = "Grandma (Thinking) :";
+            document.getElementById('speech-speaker').className = "text-purple-400 font-bold text-lg mb-1";
             hideOptions();
-            typeWriterStart("(Dad is sitting by the bed, looking exhausted and heartbroken.)", () => {
-                showOptions([
-                    { text: "Grandma: Thank goodness the surgery is finally over... Is she still asleep from the medicine?", action: () => dadTurn1('A') },
-                    { text: "Grandma: Seeing her lying there covered in all these injuries breaks my heart... How on earth did this happen?", action: () => dadTurn1('B') }
-                ]);
+            typeWriterStart("Oh, Evelyn... What happened to you, my dear?", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
             });
         }
 
-        function dadTurn1(choice) {
-            hideOptions();
-            let responseText = "";
-            if (choice === 'A') {
-                responseText = "The doctor said the surgery was a success, and now we just have to wait for her to wake up... But seeing her like this, it truly cuts me to the heart.";
-            } else if (choice === 'B') {
-                responseText = "It's all my fault... I'm so sorry, Mom, for putting you through this. Looking at her lying there, I wish it were me instead.";
-            }
-            
-            typeWriterStart(responseText, () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: I just don't understand. Why would Evelyn drive out all by herself so late at night?", action: () => dadTurn2('A') },
-                        { text: "Grandma: The police mentioned that the accident site wasn't even on her usual route home. Where could she possibly be going at that hour?", action: () => dadTurn2('B') }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function dadTurn2(choice) {
-            hideOptions();
-            typeWriterStart("I... I really don't know. I was working late at the office and completely lost track of time. By the time I got the call, the crash had already happened. I regret it so much. If only I hadn't been working overtime... if only I had stayed home to keep her company, maybe none of this would have happened.", () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: You were just working hard for this family. It's normal to work overtime sometimes, don't blame yourself too much.", action: () => dadTurn3('A') },
-                        { text: "Grandma: Has something been going on between the two of you lately? She seemed so anxious recently...", action: () => dadTurn3('B') }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function dadTurn3(choice) {
-            hideOptions();
-            let responseText = "";
-            if (choice === 'A') {
-                responseText = "But Mom... it's exactly because I'm always working overtime, spending all my time on work, that I neglected her feelings... I really haven't been a good husband.";
-            } else if (choice === 'B') {
-                responseText = "No, not at all. We’ve been great. Maybe... maybe I've just been working too much overtime lately, and she was overthinking things alone at home. She probably just went for a drive to clear her head.";
-            }
-            
-            typeWriterStart(responseText, () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: I'll watch over her. You’ve been working all day, why don't you go lie down on the bench over there?", action: () => dadTurn4('A') },
-                        { text: "Grandma: Since the surgery went well, let's not disturb her. Let's just sit down together and wait for her to open her eyes.", action: () => dadTurn4('B') }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function dadTurn4(choice) {
-            hideOptions();
-            typeWriterStart("Thank you, Mom. But I want to stay right here with her. No matter what, as long as she's safe and sound right here... she can't go anywhere else now. Please, sit down and rest with me.", () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Close", action: () => {
-                            hideOptions();
-                            document.getElementById('nurse-speech').classList.add('hidden');
-                        }}
-                    ]);
-                }, 1000);
-            });
-        }
-
-        /* 兒子 Toby 對話 */
-        function startSonDialogue() {
-            const speechBox = document.getElementById('nurse-speech');
-            speechBox.classList.remove('hidden');
-            
-            document.getElementById('speech-avatar').innerText = "👦";
-            document.getElementById('speech-speaker').innerText = "Toby :";
-            document.getElementById('speech-speaker').className = "text-sky-300 font-bold text-lg mb-1";
-            
-            hideOptions();
-            typeWriterStart("(Toby sits curled up in the corner, tightly hugging his knees. He looks utterly lost in thought.)", () => {
-                showOptions([
-                    { text: "Grandma: Are you okay? You look so pale. How are you holding up?", action: () => sonTurn1('A') },
-                    { text: "Grandma: I was looking for you. Have you been sitting here all by yourself?", action: () => sonTurn1('B') }
-                ]);
-            });
-        }
-
-        function sonTurn1(choice) {
-            hideOptions();
-            let responseText = "";
-            if (choice === 'A') {
-                responseText = "I'm fine, Grandma... Just tired.";
-            } else if (choice === 'B') {
-                responseText = "Yeah... I needed some quiet. It’s too heavy in here.";
-            }
-            
-            typeWriterStart(responseText, () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: I know this is scary for you. Your mother will wake up soon, don't worry.", action: () => sonTurn2() },
-                        { text: "Grandma: You can talk to me. Are you worried about what happened to your mom tonight?", action: () => sonTurn2() }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function sonTurn2() {
-            hideOptions();
-            typeWriterStart("I don't know, Grandma. Maybe... maybe she shouldn't wake up.", () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: Why would you say that? That's your mother!", action: () => sonTurn3('A') },
-                        { text: "Grandma: What do you mean? Did something happen before she left?", action: () => sonTurn3('B') }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function sonTurn3(choice) {
-            hideOptions();
-            let responseText = "";
-            if (choice === 'A') {
-                responseText = "Nothing. I just mean... she looked so unhappy lately. It was always so loud at home.";
-            } else if (choice === 'B') {
-                responseText = "We... we don't talk anymore. Dad was always staying late at work, and Mom... Mom was always packed.";
-            }
-            
-            typeWriterStart(responseText, () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Grandma: No matter what, you still have me. We will get through this.", action: () => sonTurn4() },
-                        { text: "Grandma: If there is something I should know, you must tell me.", action: () => sonTurn4() }
-                    ]);
-                }, 800);
-            });
-        }
-
-        function sonTurn4() {
-            hideOptions();
-            typeWriterStart("Thanks, Grandma. But it doesn't matter now... Nothing matters anymore...", () => {
-                setTimeout(() => {
-                    showOptions([
-                        { text: "Close", action: () => {
-                            hideOptions();
-                            document.getElementById('nurse-speech').classList.add('hidden');
-                        }}
-                    ]);
-                }, 1000);
-            });
-        }
-
-        /* 觀察物件文字 */
         function showFruitMessage() {
+            collectEvidence('fruit', '🧺', 'Fruit Basket');
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            
             document.getElementById('speech-avatar').innerText = "🧺";
             document.getElementById('speech-speaker').innerText = "Observation :";
             document.getElementById('speech-speaker').className = "text-yellow-400 font-bold text-lg mb-1";
-            
             hideOptions();
-            typeWriterStart("This fruit basket looks fresh, probably bought for Evelyn.", () => {
-                showOptions([
-                    { text: "Close", action: () => {
-                        hideOptions();
-                        document.getElementById('nurse-speech').classList.add('hidden');
-                    }}
-                ]);
+            typeWriterStart("A fresh fruit basket... Did Toby bring this?", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
             });
         }
 
         function showMonitorMessage() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            
-            document.getElementById('speech-avatar').innerText = "🫀";
-            document.getElementById('speech-speaker').innerText = "Monitor :";
-            document.getElementById('speech-speaker').className = "text-green-400 font-bold text-lg mb-1";
-            
+            document.getElementById('speech-avatar').innerText = "📟";
+            document.getElementById('speech-speaker').innerText = "Observation :";
+            document.getElementById('speech-speaker').className = "text-yellow-400 font-bold text-lg mb-1";
             hideOptions();
-            typeWriterStart("Evelyn's vitals are stable. The steady rhythm brings a small sense of relief amidst the chaos.", () => {
-                showOptions([
-                    { text: "Close", action: () => {
-                        hideOptions();
-                        document.getElementById('nurse-speech').classList.add('hidden');
-                    }}
-                ]);
+            typeWriterStart("The heart rate monitor is stable. At least she is safe for now.", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
             });
         }
 
         function showNecklaceMessage() {
+            collectEvidence('necklace', '📿', 'Necklace');
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            
             document.getElementById('speech-avatar').innerText = "📿";
             document.getElementById('speech-speaker').innerText = "Observation :";
-            document.getElementById('speech-speaker').className = "text-purple-400 font-bold text-lg mb-1";
-            
+            document.getElementById('speech-speaker').className = "text-yellow-400 font-bold text-lg mb-1";
             hideOptions();
-            typeWriterStart("A peculiar dark beaded necklace... It looks a bit out of place. Evelyn rarely wears things like this.", () => {
-                showOptions([
-                    { text: "Close", action: () => {
-                        hideOptions();
-                        document.getElementById('nurse-speech').classList.add('hidden');
-                    }}
-                ]);
+            typeWriterStart("Evelyn's black pearl necklace. She never takes it off.", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
             });
         }
 
         function showFlowerMessage() {
+            collectEvidence('bouquet', '💐', 'Flower Bouquet');
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            
             document.getElementById('speech-avatar').innerText = "💐";
             document.getElementById('speech-speaker').innerText = "Observation :";
-            document.getElementById('speech-speaker').className = "text-pink-400 font-bold text-lg mb-1";
-            
+            document.getElementById('speech-speaker').className = "text-yellow-400 font-bold text-lg mb-1";
             hideOptions();
-            typeWriterStart("A beautiful bouquet of flowers sitting quietly by the window... The tag says 'Sending lots of love, J.' ...Who could 'J' be?", () => {
-                showOptions([
-                    { text: "Close", action: () => {
-                        hideOptions();
-                        document.getElementById('nurse-speech').classList.add('hidden');
-                    }}
-                ]);
+            typeWriterStart("A beautiful flower bouquet resting by the window.", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
             });
         }
 
-        function showLightSwitchMessage() {
+        function startSonDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            
-            document.getElementById('speech-avatar').innerText = "💡";
-            document.getElementById('speech-speaker').innerText = "Observation :";
-            document.getElementById('speech-speaker').className = "text-yellow-300 font-bold text-lg mb-1";
-            
+            document.getElementById('speech-avatar').innerText = "👦";
+            document.getElementById('speech-speaker').innerText = "Toby :";
+            document.getElementById('speech-speaker').className = "text-orange-400 font-bold text-lg mb-1";
             hideOptions();
-            typeWriterStart("It's a standard hospital light switch. It feels slightly loose, as if someone had flicked it heavily in frustration.", () => {
-                showOptions([
-                    { text: "Close", action: () => {
-                        hideOptions();
-                        document.getElementById('nurse-speech').classList.add('hidden');
-                    }}
-                ]);
+            typeWriterStart("Grandma! You're here... Mom looks so hurt, I'm scared.", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
             });
         }
 
-        /* 點擊病歷文件的對話 (新增) */
+        function startDoctorDialogue() {
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            document.getElementById('speech-avatar').innerText = "👨‍⚕️";
+            document.getElementById('speech-speaker').innerText = "Doctor Evans :";
+            document.getElementById('speech-speaker').className = "text-emerald-400 font-bold text-lg mb-1";
+            hideOptions(); 
+
+            if (!isLightOn) {
+                typeWriterStart("Hey! Who turned off the lights? Stay where you are!", () => {
+                    showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+                });
+                return;
+            }
+
+            typeWriterStart("Excuse me, this is a restricted area. Are you a family member?", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+            });
+        }
+
+        function toggleLightSwitch() {
+            isLightOn = !isLightOn;
+            const darkness = document.getElementById('room-darkness');
+            if (isLightOn) {
+                darkness.classList.replace('opacity-100', 'opacity-0');
+            } else {
+                darkness.classList.replace('opacity-0', 'opacity-100');
+            }
+            
+            const speechBox = document.getElementById('nurse-speech');
+            speechBox.classList.remove('hidden');
+            document.getElementById('speech-avatar').innerText = "💡";
+            document.getElementById('speech-speaker').innerText = "System :";
+            document.getElementById('speech-speaker').className = "text-yellow-300 font-bold text-lg mb-1";
+            hideOptions();
+            
+            let msg = isLightOn ? "You turned the lights back on." : "You turned off the lights. The room is pitch black.";
+            typeWriterStart(msg, () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+            });
+        }
+
+        // 證物 4: 醫生報告 / 警察報告
         function showDoctorDocMessage() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            
-            document.getElementById('speech-avatar').innerText = "📋";
-            document.getElementById('speech-speaker').innerText = "Diagnosis Report :";
-            document.getElementById('speech-speaker').className = "text-sky-400 font-bold text-lg mb-1";
-            
-            hideOptions();
-            typeWriterStart("This is Evelyn's detailed medical chart... In addition to the crash injuries, the report specifically notes multiple healing grip-marks on her upper arms, listed as 'highly suspicious'.", () => {
-                showOptions([
-                    { text: "Close", action: () => {
-                        hideOptions();
-                        document.getElementById('nurse-speech').classList.add('hidden');
-                    }}
-                ]);
-            });
+
+            if (isLightOn) {
+                // 燈亮著，醫生阻止你
+                document.getElementById('speech-avatar').innerText = "👨‍⚕️";
+                document.getElementById('speech-speaker').innerText = "Doctor Evans :";
+                document.getElementById('speech-speaker').className = "text-emerald-400 font-bold text-lg mb-1";
+                hideOptions();
+                typeWriterStart("Excuse me, ma'am. I cannot let you read the detailed medical files directly. Hospital policy strictly protects patient privacy.", () => {
+                    showOptions([{ text: "Grandma: (Thinking) Privacy? But she is my daughter... Why is he so defensive about a simple file?", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+                });
+            } else {
+                // 摸黑成功偷取
+                collectEvidence('police_report', '📄', 'Police Report');
+                document.getElementById('speech-avatar').innerText = "📄";
+                document.getElementById('speech-speaker').innerText = "Secret Document :";
+                document.getElementById('speech-speaker').className = "text-red-400 font-bold text-lg mb-1";
+                hideOptions();
+                typeWriterStart("You reached out in the dark and grabbed a page from the file... Wait, this isn't a medical report. It's a Police Investigation Report! Why would the doctor hide this here?", () => {
+                    showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+                });
+            }
         }
 
         function openCurtain() {
@@ -855,23 +676,15 @@
 
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            
             document.getElementById('speech-avatar').innerText = "🪟";
             document.getElementById('speech-speaker').innerText = "Observation :";
             document.getElementById('speech-speaker').className = "text-gray-400 font-bold text-lg mb-1";
-            
             hideOptions();
             typeWriterStart("You pulled back the curtains. The dark night sky outside offers little comfort, but the air feels slightly less suffocating.", () => {
-                showOptions([
-                    { text: "Close", action: () => {
-                        hideOptions();
-                        document.getElementById('nurse-speech').classList.add('hidden');
-                    }}
-                ]);
+                showOptions([{ text: "Close", action: () => { hideOptions(); document.getElementById('nurse-speech').classList.add('hidden'); }}]);
             });
         }
 
-        /* 介面操作輔助邏輯 */
         function showOptions(optionsArray) {
             const container = document.getElementById('dialogue-options');
             container.innerHTML = ''; 
@@ -885,51 +698,28 @@
             container.classList.remove('hidden');
         }
 
-        function hideOptions() {
-            document.getElementById('dialogue-options').classList.add('hidden');
-        }
+        function hideOptions() { document.getElementById('dialogue-options').classList.add('hidden'); }
 
         function resetLogbook() {
             const logbookItem = document.getElementById('item-logbook');
             if (logbookItem) {
-                if (!logbookItem.classList.contains('interactive-item')) {
-                    logbookItem.classList.add('interactive-item');
-                }
+                if (!logbookItem.classList.contains('interactive-item')) { logbookItem.classList.add('interactive-item'); }
                 logbookItem.style.pointerEvents = 'auto'; 
             }
         }
 
-        /* 預載入與過場圖片管理 */
-        const imgOpen = "https://assets.codepen.io/17688442/scene+1-Registration+Desk.png";
-        const imgHalf = "https://assets.codepen.io/17688442/scene+1b-Registration+Desk.png";
-        const imgClosed = "https://assets.codepen.io/17688442/scene+1c-Registration+Desk.png";
-
-        const intNurseOpen = "https://assets.codepen.io/17688442/1a.png";
-        const intNurseHalf = "https://assets.codepen.io/17688442/1b.png";
-        const intNurseClosed = "https://assets.codepen.io/17688442/1c.png";
-        
-        [imgOpen, imgHalf, imgClosed, intNurseOpen, intNurseHalf, intNurseClosed].forEach(src => {
-            const img = new Image();
-            img.src = src;
-        });
-
         const monitorImages = [];
-        for (let i = 1; i <= 19; i++) {
-            const imgSrc = `https://assets.codepen.io/17688442/mon+${i}.png`;
-            const img = new Image();
-            img.src = imgSrc;
-            monitorImages.push(imgSrc);
-        }
-
-        let blinkTimer;
-        let monitorTimer;
-        let currentMonitorFrame = 0;
+        for (let i = 1; i <= 19; i++) { monitorImages.push(`https://assets.codepen.io/17688442/mon+${i}.png`); }
+        
+        let blinkTimer, monitorTimer, currentMonitorFrame = 0;
 
         function startBlinking() {
             if (blinkTimer) clearInterval(blinkTimer);
             blinkTimer = setInterval(() => {
                 const bg = document.getElementById('hospital-bg');
                 const intNurse = document.getElementById('item-interactive-nurse');
+                const imgOpen = "https://assets.codepen.io/17688442/scene+1-Registration+Desk.png", imgHalf = "https://assets.codepen.io/17688442/scene+1b-Registration+Desk.png", imgClosed = "https://assets.codepen.io/17688442/scene+1c-Registration+Desk.png";
+                const intNurseOpen = "https://assets.codepen.io/17688442/1a.png", intNurseHalf = "https://assets.codepen.io/17688442/1b.png", intNurseClosed = "https://assets.codepen.io/17688442/1c.png";
                 
                 if (bg) {
                     setTimeout(() => bg.src = imgHalf, 60);
@@ -937,7 +727,6 @@
                     setTimeout(() => bg.src = imgHalf, 180);
                     setTimeout(() => bg.src = imgOpen, 240);
                 }
-
                 if (intNurse && !intNurse.classList.contains('hidden')) {
                     setTimeout(() => intNurse.src = intNurseHalf, 60);
                     setTimeout(() => intNurse.src = intNurseClosed, 120);
@@ -947,26 +736,20 @@
             }, 3500); 
         }
 
-        function stopBlinking() {
-            if (blinkTimer) clearInterval(blinkTimer);
-        }
+        function stopBlinking() { if (blinkTimer) clearInterval(blinkTimer); }
 
         function startMonitorAnimation() {
             if (monitorTimer) clearInterval(monitorTimer);
             const monitorEl = document.getElementById('item-monitor');
             if (!monitorEl) return;
-
             monitorTimer = setInterval(() => {
                 currentMonitorFrame = (currentMonitorFrame + 1) % 19;
                 monitorEl.src = monitorImages[currentMonitorFrame];
             }, 100); 
         }
 
-        function stopMonitorAnimation() {
-            if (monitorTimer) clearInterval(monitorTimer);
-        }
+        function stopMonitorAnimation() { if (monitorTimer) clearInterval(monitorTimer); }
 
-        /* 跨場景轉場邏輯 */
         function transitionToWard() {
             stopBlinking();
             const fadeOverlay = document.getElementById('fade-overlay');
@@ -1013,6 +796,11 @@
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
+            
+            // 重置燈光狀態
+            isLightOn = true;
+            document.getElementById('room-darkness').classList.replace('opacity-100', 'opacity-0');
+
             setTimeout(() => {
                 switchScene('scene-ward', 'scene-doctor');
                 fadeOverlay.classList.remove('opacity-100');
@@ -1044,6 +832,7 @@
                 document.getElementById('item-interactive-nurse').classList.remove('hidden');
                 startBlinking(); 
                 resetLogbook(); 
+                hasReturnedFromDoctor = true;
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
@@ -1055,6 +844,11 @@
             const fadeOverlay = document.getElementById('fade-overlay');
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
+            
+            // 重置燈光狀態
+            isLightOn = true;
+            document.getElementById('room-darkness').classList.replace('opacity-100', 'opacity-0');
+
             setTimeout(() => {
                 switchScene('scene-hospital', 'scene-doctor');
                 fadeOverlay.classList.remove('opacity-100');
@@ -1062,24 +856,19 @@
             }, 1000);
         }
 
+        // 證物 1: Visitor Log Book
         function checkAnswers() {
             const wardInput = document.getElementById('input-h42').value.trim().toLowerCase();
             const relInput = document.getElementById('input-ruth').value.trim().toLowerCase();
-
-            const isWardCorrect = (wardInput === 'h18');
-            const isRelCorrect = (['mother', 'mum', 'mom'].includes(relInput));
-
-            if (isWardCorrect && isRelCorrect) {
+            if (wardInput === 'h18' && ['mother', 'mum', 'mom'].includes(relInput)) {
                 isLogbookLocked = true; 
                 typeWriterStart("Thank you. You may come in.");
                 closeLogBook(); 
+                document.getElementById('item-logbook').classList.remove('interactive-item'); 
+                document.getElementById('item-logbook').style.pointerEvents = 'none'; 
                 
-                const logbookItem = document.getElementById('item-logbook');
-                logbookItem.classList.remove('interactive-item'); 
-                logbookItem.style.pointerEvents = 'none'; 
-                
+                // 首次提交不再收集證物，僅前往病房
                 setTimeout(transitionToWard, 3000);
-                
             } else {
                 typeWriterStart("Please make sure the information is correct.");
             }
@@ -1087,26 +876,32 @@
 
         function openLogBook() { 
             document.getElementById('modal-logbook').classList.remove('hidden'); 
-            
             if (isLogbookLocked) {
                 const inputH42 = document.getElementById('input-h42');
                 const inputRuth = document.getElementById('input-ruth');
-                
-                inputH42.readOnly = true;
-                inputRuth.readOnly = true;
-                
-                inputH42.style.animation = 'none';
-                inputH42.style.border = 'none';
-                inputRuth.style.animation = 'none';
-                inputRuth.style.border = 'none';
-                
+                inputH42.readOnly = true; inputRuth.readOnly = true;
+                inputH42.style.animation = 'none'; inputH42.style.border = 'none';
+                inputRuth.style.animation = 'none'; inputRuth.style.border = 'none';
                 document.getElementById('btn-submit-logbook').classList.add('hidden');
+                
+                // 只有在從醫生房間回來後，再次點開登記簿才會觸發收集
+                if (hasReturnedFromDoctor && !collectedIds.has('logbook')) {
+                    collectEvidence('logbook', '📖', 'Visitor Log');
+                    
+                    const speechBox = document.getElementById('nurse-speech');
+                    speechBox.classList.remove('hidden');
+                    document.getElementById('speech-avatar').innerText = "📖";
+                    document.getElementById('speech-speaker').innerText = "Observation :";
+                    document.getElementById('speech-speaker').className = "text-yellow-400 font-bold text-lg mb-1";
+                    hideOptions();
+                    typeWriterStart("Re-checking the logbook... there are still no other visitors tonight. Those suspicious grip marks definitely couldn't have been made by an outsider.", () => {
+                        showOptions([{ text: "Close", action: () => { hideOptions(); document.getElementById('nurse-speech').classList.add('hidden'); }}]);
+                    });
+                }
             }
         }
         
-        function closeLogBook() { 
-            document.getElementById('modal-logbook').classList.add('hidden'); 
-        }
+        function closeLogBook() { document.getElementById('modal-logbook').classList.add('hidden'); }
     </script>
 </body>
 </html>
