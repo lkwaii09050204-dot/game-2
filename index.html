@@ -87,27 +87,22 @@
 </head>
 <body class="bg-gray-900 min-h-screen p-2 sm:p-4 select-none overflow-x-hidden flex flex-col items-center justify-center">
 
-    <!-- 背景音樂播放器 -->
     <audio id="bg-music" loop preload="auto">
         <source src="Walen - Conspiracy Detective (freetouse.com).mp3" type="audio/mpeg">
     </audio>
 
-    <!-- 全局佈局容器 (左邊遊戲主體 + 右邊收集欄) -->
     <div class="flex flex-col lg:flex-row w-full max-w-[1300px] items-center lg:items-start justify-center gap-4 sm:gap-6">
         
-        <!-- =================== 左側：遊戲主畫面與對話框 =================== -->
         <div class="flex-1 w-full max-w-5xl flex flex-col items-center">
             
             <div id="game-container" class="relative w-full aspect-ratio-box bg-black shadow-2xl rounded-xl overflow-hidden border-2 sm:border-4 border-gray-700">
                 
-                <!-- 場景 0：開始畫面 -->
                 <div id="scene-start" class="active-scene bg-gray-800 flex flex-col items-center justify-center text-white z-50 p-4">
                     <h1 class="text-3xl sm:text-5xl font-bold mb-4 tracking-widest text-red-400 text-center">The Price of Lies</h1>
                     <h2 class="text-lg sm:text-2xl mb-12 text-gray-300 text-center">Chapter 2: Accident and Truth</h2>
                     <button onclick="startGame()" class="px-6 py-2.5 sm:px-8 sm:py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full transition transform scale-105 hover:scale-110 shadow-lg active:scale-95">Start Game</button>
                 </div>
 
-                <!-- 場景 1：警察來電 -->
                 <div id="scene-phone" class="hidden-scene bg-gray-900 flex flex-col items-center justify-center z-40 relative p-4">
                     <div class="z-10 text-center max-w-xl">
                         <div class="text-5xl sm:text-6xl mb-6">📱</div>
@@ -116,7 +111,6 @@
                     </div>
                 </div>
 
-                <!-- 場景 2：醫院登記處 -->
                 <div id="scene-hospital" class="hidden-scene z-30 bg-black">
                     <img id="hospital-bg" src="https://assets.codepen.io/17688442/scene+1-Registration+Desk.png" alt="Hospital Registration Desk" class="w-full h-full object-cover">
                     
@@ -156,7 +150,7 @@
                     </div>
                     
                     <div class="mt-4 z-50 flex flex-col sm:flex-row gap-3 sm:gap-6 justify-center w-full px-4 max-w-2xl">
-                        <button onclick="recallPhoneConversation()" class="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg transition shadow-lg text-sm sm:text-xl border border-white/50 active:scale-95">
+                        <button id="btn-recall-phone" onclick="recallPhoneConversation()" class="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg transition shadow-lg text-sm sm:text-xl border border-white/50 active:scale-95">
                             Recall Police Conversation
                         </button>
                         <button id="btn-submit-logbook" onclick="checkAnswers()" class="w-full sm:w-auto px-4 py-2 sm:px-8 sm:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-lg text-sm sm:text-xl border border-white/50 active:scale-95">
@@ -165,7 +159,6 @@
                     </div>
                 </div>
 
-                <!-- 場景 3：病房內 -->
                 <div id="scene-ward" class="hidden-scene z-30 bg-black">
                     <img src="https://assets.codepen.io/17688442/dad.jpeg" alt="Evelyn in Hospital Bed" class="w-full h-full object-cover">
 
@@ -204,7 +197,6 @@
                     </button>
                 </div>
 
-                <!-- 場景 5：兒子角落 -->
                 <div id="scene-son" class="hidden-scene z-30 bg-black">
                     <img src="https://assets.codepen.io/17688442/son+scene.jpeg" alt="Toby in Hospital Hallway Corner" class="w-full h-full object-cover">
                     
@@ -235,9 +227,10 @@
                     </button>
                 </div>
 
-                <!-- 場景 4：醫生房間 -->
                 <div id="scene-doctor" class="hidden-scene z-30 bg-black">
-                    <div id="room-darkness" class="absolute inset-0 bg-black z-[48] opacity-0 pointer-events-none transition-opacity duration-700"></div>
+                    <!-- 全黑遮罩 (層級44)，覆蓋除了病歷文件與左右箭頭以外的物品 -->
+                    <div id="room-darkness" class="absolute inset-0 bg-black z-[44] opacity-0 pointer-events-none transition-opacity duration-700"></div>
+                    
                     <img src="https://assets.codepen.io/17688442/doctor+whole.jpeg" alt="Doctor Room Background" class="w-full h-full object-cover">
                     
                     <img src="https://assets.codepen.io/17688442/doctor+no+doc.png" 
@@ -246,8 +239,8 @@
                          onclick="startDoctorDialogue()">
 
                     <img src="https://assets.codepen.io/17688442/doctor+doc.png" 
-                         id="item-doctor-doc" class="breathing-item"
-                         style="left: 53%; top: 37.3%; width: 17%; z-index: 42; transform-origin: center center;"
+                         id="item-doctor-doc" class="breathing-item transition-opacity duration-700"
+                         style="left: 53%; top: 37.3%; width: 17%; z-index: 45; transform-origin: center center;"
                          onclick="showDoctorDocMessage()">
 
                     <img src="https://assets.codepen.io/17688442/original.png" 
@@ -257,7 +250,7 @@
 
                     <img src="https://assets.codepen.io/17688442/door+button.png" 
                          id="item-doorknob" class="interactive-item"
-                         style="left: 88.3%; top: 57.1%; width: 6.2%; z-index: 46; filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));"
+                         style="left: 88.3%; top: 57.1%; width: 6.2%; z-index: 40; filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));"
                          onclick="backToHospitalFromDoctor()">
 
                     <button class="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 rounded-full border border-white/30 text-white transition-all z-50 arrow-glow active:scale-90" 
@@ -268,11 +261,9 @@
                     </button>
                 </div>
                 
-                <!-- 全螢幕切換場景過渡遮罩 -->
                 <div id="fade-overlay" class="absolute inset-0 bg-black z-[100] opacity-0 pointer-events-none transition-opacity duration-1000"></div>
             </div>
 
-            <!-- 對話框區域 -->
             <div class="w-full h-[240px] sm:h-[280px] mt-3 sm:mt-6 shrink-0">
                 <div id="nurse-speech" class="hidden fade-in w-full h-full p-4 sm:p-6 bg-gray-800 rounded-xl border-2 border-gray-500 shadow-lg flex flex-col space-y-3 sm:space-y-4 overflow-y-auto">
                     <div class="flex items-start space-x-3 sm:space-x-4">
@@ -288,34 +279,20 @@
             
         </div>
 
-        <!-- =================== 右側：物品收集欄 =================== -->
         <div class="w-full lg:w-[200px] bg-gray-800 border-2 border-gray-600 rounded-xl p-4 flex flex-row lg:flex-col overflow-x-auto lg:overflow-y-visible items-center gap-4 shrink-0 shadow-xl">
             <h3 class="text-white font-bold text-base lg:text-lg text-center tracking-wider shrink-0">
                 EVIDENCE<br>
                 <span id="evidence-count" class="text-blue-400 text-sm">(0/5)</span>
             </h3>
             
-            <!-- 插槽容器 -->
             <div id="inventory-slots" class="flex flex-row lg:flex-col gap-3 lg:gap-4 w-full justify-center items-center shrink-0">
-                <!-- 5 個預設空插槽 -->
-                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-1">
-                    <span class="text-xl font-bold">?</span>
-                </div>
-                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-2">
-                    <span class="text-xl font-bold">?</span>
-                </div>
-                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-3">
-                    <span class="text-xl font-bold">?</span>
-                </div>
-                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-4">
-                    <span class="text-xl font-bold">?</span>
-                </div>
-                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-5">
-                    <span class="text-xl font-bold">?</span>
-                </div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-1"><span class="text-xl font-bold">?</span></div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-2"><span class="text-xl font-bold">?</span></div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-3"><span class="text-xl font-bold">?</span></div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-4"><span class="text-xl font-bold">?</span></div>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 bg-gray-900 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 shrink-0 relative" id="slot-5"><span class="text-xl font-bold">?</span></div>
             </div>
 
-            <!-- 開發測試按鈕 -->
             <button onclick="testCollect()" class="mt-auto px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs sm:text-sm font-bold rounded-md shrink-0 border border-gray-500 active:scale-95 transition-transform">
                 Test Collect
             </button>
@@ -323,7 +300,6 @@
 
     </div>
 
-    <!-- =================== 最終問答彈出視窗 (Quiz Modal) =================== -->
     <div id="modal-quiz" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center p-4">
         <div class="w-full max-w-2xl bg-gray-800 border-2 border-blue-500 rounded-xl p-6 sm:p-10 text-center shadow-[0_0_30px_rgba(59,130,246,0.5)]">
             <div class="text-6xl mb-4">🔍</div>
@@ -341,43 +317,32 @@
     </div>
 
     <script>
-        // ==========================================
-        //         物品收集與 Quiz 系統邏輯
-        // ==========================================
         let collectedItemsCount = 0;
         const MAX_ITEMS = 5;
-        
-        // 記錄已經收集過的物品 ID 避免重複收集
         const collectedIds = new Set();
 
-        // 呼叫此函數來收集物品
         function collectEvidence(itemId, iconEmoji, itemName) {
             if (collectedIds.has(itemId) || collectedItemsCount >= MAX_ITEMS) return;
             
             collectedIds.add(itemId);
             collectedItemsCount++;
             
-            // 更新 UI 數字
             document.getElementById('evidence-count').innerText = `(${collectedItemsCount}/${MAX_ITEMS})`;
             
-            // 找出對應的插槽並更新外觀
             const slot = document.getElementById(`slot-${collectedItemsCount}`);
             slot.classList.remove('border-dashed', 'border-gray-600', 'text-gray-500');
             slot.classList.add('border-solid', 'border-blue-400', 'text-white', 'bg-blue-900/30', 'slot-filled');
             
-            // 更新插槽內容
             slot.innerHTML = `
                 <div class="text-3xl lg:text-4xl mb-1">${iconEmoji}</div>
                 <div class="text-[10px] lg:text-xs font-bold text-blue-200 text-center leading-tight px-1">${itemName}</div>
             `;
 
-            // 如果收集滿 5 個，延遲一點時間後觸發 Quiz
             if (collectedItemsCount === MAX_ITEMS) {
                 setTimeout(triggerFinalQuiz, 1500);
             }
         }
 
-        // 測試用的假收集按鈕功能
         const dummyItems = [
             { id: 'logbook', icon: '📖', name: 'Visitor Log' },
             { id: 'fruit', icon: '🧺', name: 'Fruit Basket' },
@@ -392,20 +357,9 @@
             }
         }
 
-        // 觸發最終問答
-        function triggerFinalQuiz() {
-            document.getElementById('modal-quiz').classList.remove('hidden');
-        }
+        function triggerFinalQuiz() { document.getElementById('modal-quiz').classList.remove('hidden'); }
+        function closeQuizModal() { document.getElementById('modal-quiz').classList.add('hidden'); }
 
-        // 關閉問答視窗
-        function closeQuizModal() {
-            document.getElementById('modal-quiz').classList.add('hidden');
-        }
-
-
-        // ==========================================
-        //         原有的遊戲場景與對話邏輯
-        // ==========================================
         function switchScene(hideId, showId) {
             document.getElementById(hideId).classList.replace('active-scene', 'hidden-scene');
             document.getElementById(showId).classList.replace('hidden-scene', 'active-scene');
@@ -503,6 +457,21 @@
             }
         }
 
+        function showOptions(optionsArray) {
+            const container = document.getElementById('dialogue-options');
+            container.innerHTML = ''; 
+            optionsArray.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "text-left px-4 py-2.5 sm:px-5 sm:py-3 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-gray-100 font-semibold rounded-lg border border-gray-500 transition-colors shadow-md text-sm sm:text-base active:scale-[0.98]";
+                btn.innerText = opt.text;
+                btn.onclick = opt.action;
+                container.appendChild(btn);
+            });
+            container.classList.remove('hidden');
+        }
+
+        function hideOptions() { document.getElementById('dialogue-options').classList.add('hidden'); }
+
         function startNurseDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -593,30 +562,102 @@
         function startDoctorDialogue() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
-            document.getElementById('speech-avatar').innerText = "👨‍⚕️";
-            document.getElementById('speech-speaker').innerText = "Doctor Evans :";
-            document.getElementById('speech-speaker').className = "text-emerald-400 font-bold text-lg mb-1";
-            hideOptions(); 
-
+            
             if (!isLightOn) {
-                typeWriterStart("Hey! Who turned off the lights? Stay where you are!", () => {
+                // 如果在黑暗中點擊醫生位置
+                document.getElementById('speech-avatar').innerText = "👨‍⚕️";
+                document.getElementById('speech-speaker').innerText = "Doctor Evans :";
+                document.getElementById('speech-speaker').className = "text-emerald-400 font-bold text-lg mb-1";
+                hideOptions();
+                typeWriterStart("Who turned off the lights? Please don't move around, ma'am.", () => {
                     showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
                 });
                 return;
             }
 
-            typeWriterStart("Excuse me, this is a restricted area. Are you a family member?", () => {
-                showOptions([{ text: "Close", action: () => { hideOptions(); speechBox.classList.add('hidden'); }}]);
+            // 開燈狀態：開始多層次對話 (Turn 1)
+            document.getElementById('speech-avatar').innerText = "👨‍⚕️";
+            document.getElementById('speech-speaker').innerText = "Doctor Evans :";
+            document.getElementById('speech-speaker').className = "text-emerald-400 font-bold text-lg mb-1";
+            hideOptions(); 
+            
+            typeWriterStart("Hello. I need to ask you a question about Evelyn. Does she fall down often? Is she careless?", () => {
+                showOptions([
+                    { text: "Grandma: Why do you ask, Doctor? Is something wrong?", action: () => doctorTurn1Resp('A') },
+                    { text: "Grandma: I am not sure. Did you find something during the surgery?", action: () => doctorTurn1Resp('B') }
+                ]);
+            });
+        }
+
+        function doctorTurn1Resp(choice) {
+            hideOptions();
+            document.getElementById('speech-speaker').innerText = "Doctor Evans :";
+            document.getElementById('speech-speaker').className = "text-emerald-400 font-bold text-lg mb-1";
+            
+            let msg = choice === 'A' 
+                ? "We found some small bruises on her body. They look older than the car accident." 
+                : "Yes. We noticed some older bruises on her arms. They happened before the crash.";
+            
+            typeWriterStart(msg, () => {
+                // Turn 2
+                showOptions([
+                    { text: "Grandma: I don't live with her, so I don't know much about her daily life.", action: () => doctorTurn2Resp() },
+                    { text: "Grandma: She did not tell me anything. But we do not live together.", action: () => doctorTurn2Resp() }
+                ]);
+            });
+        }
+
+        function doctorTurn2Resp() {
+            hideOptions();
+            document.getElementById('speech-speaker').innerText = "Doctor Evans :";
+            
+            typeWriterStart("I see. But the shape of these bruises is strange. They do not look like normal injuries from falling down.", () => {
+                // Turn 3
+                showOptions([
+                    { text: "Grandma: Could it be a family health problem? Her father had a stroke and always lost his balance and fell.", action: () => doctorTurn3Resp('A') },
+                    { text: "Grandma: Did she faint before the crash? Her father had a stroke and often passed out suddenly.", action: () => doctorTurn3Resp('B') }
+                ]);
+            });
+        }
+
+        function doctorTurn3Resp(choice) {
+            hideOptions();
+            document.getElementById('speech-speaker').innerText = "Doctor Evans :";
+            
+            let msg = choice === 'A'
+                ? "That is possible. But when people lose their balance, they usually hurt their knees or hands. Evelyn's bruises are on her upper arms and shoulders."
+                : "If she passed out, she would just fall flat on the floor. But these marks look more like pressure marks—like someone grabbed her—not a fall.";
+            
+            typeWriterStart(msg, () => {
+                // Turn 4
+                showOptions([
+                    { text: "Grandma: Please, Doctor, check her again very carefully. We need to be sure.", action: () => doctorTurn4Resp() },
+                    { text: "Grandma: Please do a full checkup on her. I want to know the truth.", action: () => doctorTurn4Resp() }
+                ]);
+            });
+        }
+
+        function doctorTurn4Resp() {
+            hideOptions();
+            document.getElementById('speech-speaker').innerText = "Doctor Evans :";
+            typeWriterStart("(Looking at his clipboard, frowning) I will check her again very carefully. But ma'am... if these marks are not from simple falls, it could be a very different story. Let's wait for her to wake up first.", () => {
+                showOptions([{ text: "Close", action: () => { hideOptions(); document.getElementById('nurse-speech').classList.add('hidden'); }}]);
             });
         }
 
         function toggleLightSwitch() {
             isLightOn = !isLightOn;
             const darkness = document.getElementById('room-darkness');
+            const doc = document.getElementById('item-doctor-doc');
+            
             if (isLightOn) {
                 darkness.classList.replace('opacity-100', 'opacity-0');
+                doc.style.opacity = '1';
+                doc.style.pointerEvents = 'auto'; 
             } else {
                 darkness.classList.replace('opacity-0', 'opacity-100');
+                doc.style.opacity = '0'; 
+                doc.style.pointerEvents = 'auto'; 
             }
             
             const speechBox = document.getElementById('nurse-speech');
@@ -632,7 +673,6 @@
             });
         }
 
-        // 證物 4: 醫生報告 / 警察報告
         function showDoctorDocMessage() {
             const speechBox = document.getElementById('nurse-speech');
             speechBox.classList.remove('hidden');
@@ -684,21 +724,6 @@
                 showOptions([{ text: "Close", action: () => { hideOptions(); document.getElementById('nurse-speech').classList.add('hidden'); }}]);
             });
         }
-
-        function showOptions(optionsArray) {
-            const container = document.getElementById('dialogue-options');
-            container.innerHTML = ''; 
-            optionsArray.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = "text-left px-4 py-2.5 sm:px-5 sm:py-3 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-gray-100 font-semibold rounded-lg border border-gray-500 transition-colors shadow-md text-sm sm:text-base active:scale-[0.98]";
-                btn.innerText = opt.text;
-                btn.onclick = opt.action;
-                container.appendChild(btn);
-            });
-            container.classList.remove('hidden');
-        }
-
-        function hideOptions() { document.getElementById('dialogue-options').classList.add('hidden'); }
 
         function resetLogbook() {
             const logbookItem = document.getElementById('item-logbook');
@@ -797,9 +822,10 @@
             fadeOverlay.classList.remove('opacity-0');
             fadeOverlay.classList.add('opacity-100');
             
-            // 重置燈光狀態
+            // 重置燈光狀態與文件透明度
             isLightOn = true;
             document.getElementById('room-darkness').classList.replace('opacity-100', 'opacity-0');
+            document.getElementById('item-doctor-doc').style.opacity = '1';
 
             setTimeout(() => {
                 switchScene('scene-ward', 'scene-doctor');
@@ -832,7 +858,7 @@
                 document.getElementById('item-interactive-nurse').classList.remove('hidden');
                 startBlinking(); 
                 resetLogbook(); 
-                hasReturnedFromDoctor = true;
+                hasReturnedFromDoctor = true; // 標記已從醫生房間回來，準備觸發二次調查
                 fadeOverlay.classList.remove('opacity-100');
                 fadeOverlay.classList.add('opacity-0');
             }, 1000);
@@ -848,6 +874,7 @@
             // 重置燈光狀態
             isLightOn = true;
             document.getElementById('room-darkness').classList.replace('opacity-100', 'opacity-0');
+            document.getElementById('item-doctor-doc').style.opacity = '1';
 
             setTimeout(() => {
                 switchScene('scene-hospital', 'scene-doctor');
@@ -856,7 +883,6 @@
             }, 1000);
         }
 
-        // 證物 1: Visitor Log Book
         function checkAnswers() {
             const wardInput = document.getElementById('input-h42').value.trim().toLowerCase();
             const relInput = document.getElementById('input-ruth').value.trim().toLowerCase();
@@ -876,6 +902,7 @@
 
         function openLogBook() { 
             document.getElementById('modal-logbook').classList.remove('hidden'); 
+            
             if (isLogbookLocked) {
                 const inputH42 = document.getElementById('input-h42');
                 const inputRuth = document.getElementById('input-ruth');
@@ -884,19 +911,26 @@
                 inputRuth.style.animation = 'none'; inputRuth.style.border = 'none';
                 document.getElementById('btn-submit-logbook').classList.add('hidden');
                 
-                // 只有在從醫生房間回來後，再次點開登記簿才會觸發收集
-                if (hasReturnedFromDoctor && !collectedIds.has('logbook')) {
-                    collectEvidence('logbook', '📖', 'Visitor Log');
+                // 從醫生房間回來後：隱藏 recall 按鈕並觸發證物收集
+                if (hasReturnedFromDoctor) {
+                    const recallBtn = document.getElementById('btn-recall-phone');
+                    if (recallBtn) {
+                        recallBtn.classList.add('hidden');
+                    }
                     
-                    const speechBox = document.getElementById('nurse-speech');
-                    speechBox.classList.remove('hidden');
-                    document.getElementById('speech-avatar').innerText = "📖";
-                    document.getElementById('speech-speaker').innerText = "Observation :";
-                    document.getElementById('speech-speaker').className = "text-yellow-400 font-bold text-lg mb-1";
-                    hideOptions();
-                    typeWriterStart("Re-checking the logbook... there are still no other visitors tonight. Those suspicious grip marks definitely couldn't have been made by an outsider.", () => {
-                        showOptions([{ text: "Close", action: () => { hideOptions(); document.getElementById('nurse-speech').classList.add('hidden'); }}]);
-                    });
+                    if (!collectedIds.has('logbook')) {
+                        collectEvidence('logbook', '📖', 'Visitor Log');
+                        
+                        const speechBox = document.getElementById('nurse-speech');
+                        speechBox.classList.remove('hidden');
+                        document.getElementById('speech-avatar').innerText = "📖";
+                        document.getElementById('speech-speaker').innerText = "Observation :";
+                        document.getElementById('speech-speaker').className = "text-yellow-400 font-bold text-lg mb-1";
+                        hideOptions();
+                        typeWriterStart("Re-checking the logbook... there are still no other visitors tonight. Those suspicious grip marks definitely couldn't have been made by an outsider.", () => {
+                            showOptions([{ text: "Close", action: () => { hideOptions(); document.getElementById('nurse-speech').classList.add('hidden'); }}]);
+                        });
+                    }
                 }
             }
         }
